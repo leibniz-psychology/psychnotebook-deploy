@@ -1,0 +1,110 @@
+digraph G {
+	node [
+		colorscheme="accent8"
+		labeljust="l"
+		style=filled
+		]
+	edge [
+		colorscheme="dark28"
+		]
+
+	subgraph cluster_compute01 {
+		label="compute01"
+		color=1
+
+		/* software */
+		{
+			node [
+				fillcolor=1
+			]
+			rpc_gssd_compute01 [label="rpc.gssd"];
+			guix_compute01 [label="guix"];
+			sssd_compute01 [label="sssd"];
+			sssdkcm_compute01 [label="sssd-kcm"];
+			sshd_compute01 [label="sshd"];
+			pam_compute01 [label="pam"];
+			nss_compute01 [label="Name Service Switch (NSS)"];
+		}
+
+		/* mounts */
+		subgraph cluster_volumes_compute01 {
+			node [
+				fillcolor=2
+			]
+			home_mount_compute01 [label="/home"];
+			gnu_mount_compute01 [label="/gnu"];
+			var_guix_mount_compute01 [label="/var/guix"];
+			
+			label="Volumes";
+		}
+	}
+
+	subgraph cluster_master {
+		label="master"
+		color=1
+
+		/* software */
+		{
+			node [
+				fillcolor=1
+			]
+			guix_daemon [label="guix-daemon"];
+			slapd_master [label="OpenLDAP server (slapd)"];
+			sssd_master [label="sssd"];
+			sssdkcm_master [label="sssd-kcm"];
+			kdc_master [label="kdc"];
+			rpc_svgssd_nfs [label="rpc.svgssd"];
+			nfsd [label="nfsd"];
+			pam_master [label="pam"];
+			nss_master [label="Name Service Switch (NSS)"];
+			sshd_master [label="sshd"];
+		}
+		/* mounts */
+		subgraph cluster_volumes_master {
+			node [
+				fillcolor=2
+			]
+			gnu_mount_guix [label="/gnu"];
+			var_guix_mount_guix [label="/var/guix"];
+			home_mount_master [label="/home"];
+		}
+	}
+
+	{
+		edge [
+			color=1
+			dir=none
+			];
+
+		home_mount_compute01 -> nfsd;
+		gnu_mount_compute01 -> nfsd;
+		var_guix_mount_compute01 -> nfsd;
+
+		nfsd -> home_mount_master;
+		nfsd -> gnu_mount_guix;
+		nfsd -> var_guix_mount_guix;
+	}
+
+	guix_compute01 -> sshd_master [label="to guix-daemon"];
+	sshd_master -> kdc_master [label="GSSAPI auth"];
+	sshd_master -> nss_master [label="password auth"];
+	nss_compute01 -> pam_compute01;
+	pam_compute01 -> sssd_compute01;
+	guix_compute01 -> nss_compute01;
+
+	sssd_compute01 -> kdc_master [label="User authentication"];
+	sssd_compute01 -> slapd_master [label="User database"];
+	sssd_master -> kdc_master [label="User authentication"];
+	sssd_master -> slapd_master [label="User database"];
+	guix_daemon -> nss_master;
+	nss_master -> pam_master;
+	pam_master -> sssd_master;
+
+	kdc_master -> slapd_master [label="Database backend"];
+	slapd_master -> kdc_master [label="SASL auth"];
+
+	sshd_compute01 -> nss_compute01 [label="password auth"];
+	sshd_compute01 -> kdc_master [label="GSSAPI auth"];
+
+	user -> sshd_compute01 [label="interactive session"];
+}
