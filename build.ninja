@@ -1,0 +1,5 @@
+rule sphinx
+    command = sphinx-build $in $out
+
+build _build: sphinx .
+
