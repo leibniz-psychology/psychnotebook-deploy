@@ -183,3 +183,44 @@ Kerberos
 
 	apt install krb5-user
 
+Local development environment
+-----------------------------
+
+The entire cluster can be run in a local virtual machine setup using libvirt
+(for example). Additionally installing a local DNS server is required.
+
+.. code:: bash
+
+	apt install unbound
+
+Two config files are necessary.
+:file:`/etc/unbound/unbound.conf.d/psychnotebook-env.conf` sets up DNS names
+for the cluster. Make sure to adjust IP addresses.
+
+.. code::
+
+	server:
+		local-zone: "userapp.local." redirect
+		local-data: "userapp.local. 10800 IN NS localhost."
+		local-data: "userapp.local. 10800 IN SOA localhost. nobody.invalid. 1 3600 1200 604800 10800"
+		local-data: "userapp.local. 10800 IN A 192.168.122.197"
+
+		local-zone: "compute.local." static
+		local-data: "compute.local. 10800 IN NS localhost."
+		local-data: "compute.local. 10800 IN SOA localhost. nobody.invalid. 1 3600 1200 604800 10800"
+		local-data: "master.compute.local. 10800 IN A 192.168.122.197"
+		local-data: "node01.compute.local. 10800 IN A 192.168.122.115"
+
+And :file:`/etc/unbound/unbound.conf.d/forward-all.conf` forwards everything
+else to your preferred recursive DNS servers.
+
+.. code::
+
+	forward-zone:
+	  name: "."
+	  forward-addr: 136.199.89.5
+	  forward-addr: 136.199.89.6
+
+Then use ``127.0.0.1`` as your primary DNS server, for instance using
+``resolvectl``.
+
