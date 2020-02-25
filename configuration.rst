@@ -36,6 +36,13 @@ that on set in :file:`/etc/sssd/sssd.conf`::
 
 .. _sssd-kcm: https://docs.pagure.org/SSSD.sssd/design_pages/kcm.html
 
+Due to the kerberized NFS homes it is not possible to use ``.k5login`` and::
+
+	access_provider = krb5
+
+When logging into account *a* as principal *b* NFS will still reject access,
+since principal *b* cannot be mapped to the UNIX user *a*.
+
 PAM
 ^^^
 
