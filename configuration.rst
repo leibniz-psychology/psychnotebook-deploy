@@ -168,10 +168,7 @@ key is distributed to each compute node on :file:`/etc/ssh/ssh_known_hosts`.
 :program:`guix-daemon` is not run on the compute nodes. Instead
 ``GUIX_DAEMON_SOCKET=ssh://master.compute.zpid.de`` must be set
 in :file:`/etc/environment`, so :program:`guix` connects to the master server
-via SSH. This also needs a patched guix installation, until 38541_ is merged.
-
-.. _38541: https://issues.guix.gnu.org/issue/38541
-
+via SSH.
 
 autofs
 ^^^^^^
