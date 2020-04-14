@@ -6,13 +6,14 @@ compute.zpid.de admin documentation
 
 	configuration
 
-compute.zpid.de is a general-purpose compute cluster for end-users. It
-consists of a master server providing NFS, Kerberos, LDAP, guix-daemon as well
-as clumsy_ and conductor_. Compute nodes run user-supplied interactive jobs via
-SSH. The following graph shows all components of the system.
+compute.zpid.de is a general-purpose compute cluster for end-users. It provides
+shared volumes through NFS, user authentication via Kerberos, LDAP and clumsy_,
+a guix installation as well as reverse proxying via conductor_. Users can log
+in via SSH or a web interface (bawwab_).
 
 .. _clumsy: https://github.com/leibniz-psychology/clumsy
 .. _conductor: https://github.com/leibniz-psychology/conductor
+.. _bawwab: https://github.com/leibniz-psychology/bawwab
 
 .. graphviz:: sysarch.gv
 	:caption: System overview
