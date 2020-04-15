@@ -457,3 +457,17 @@ Disallows getting a list of users:
 
 	chmod o-r /home
 
+Enable the firewall to provide at least some protection of our internal
+network:
+
+.. code:: console
+
+	ufw allow 22/tcp
+	ufw allow 80/tcp
+	ufw allow out to 136.199.89.5 port 53 comment 'dns'
+	ufw allow out to 136.199.85.125 port 443 comment 'haproxy'
+	ufw allow out to 136.199.85.125 port 80 comment 'haproxy'
+	ufw deny out to 136.199.85.0/24 comment 'private'
+	ufw deny out to 136.199.89.0/24 comment 'private'
+	ufw deny out to 136.199.86.0/24 comment 'private'
+
