@@ -91,6 +91,14 @@ via a guile interpreter. This binary must be in ``PATH``, thus run as root:
 	guix install guile
 	ln -sv /var/guix/profiles/per-user/root/guix-profile/bin/guile /usr/local/bin/
 
+Then append
+
+.. code::
+
+	export GUIX_LOCPATH=$GUIX_PROFILE/lib/locale
+
+to ``/etc/profile.d/guixenv.sh``
+
 LDAP
 ^^^^
 
