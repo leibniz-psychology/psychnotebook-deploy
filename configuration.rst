@@ -479,3 +479,64 @@ network:
 	ufw deny out to 136.199.89.0/24 comment 'private'
 	ufw deny out to 136.199.86.0/24 comment 'private'
 
+clumsy
+^^^^^^
+
+.. code:: console
+
+	git clone https://github.com/leibniz-psychology/clumsy.git
+	cd clumsy
+	guix package -p /usr/local/profiles/clumsy -f contrib/clumsy.scm
+
+	# copy config files
+	mkdir /etc/clumsy
+	chmod 750 /etc/clumsy
+	cp contrib/*.config /etc/clumsy
+	# now edit them
+
+	# then configure systemd
+	cp contrib/*.service /etc/systemd/system
+	# Adjust file paths for ExecStart
+	systemctl daemon-reload
+	systemctl enable …
+	systemctl start …
+
+conductor
+^^^^^^^^^
+
+Same procedure:
+
+.. code:: console
+
+	git clone https://github.com/leibniz-psychology/conductor.git
+	cd conductor
+	guix package -p /usr/local/profiles/conductor -f contrib/conductor.scm
+
+	cp contrib/*.service /etc/systemd/system
+	# edit service file again
+	systemctl daemon-reload
+	systemctl enable conductor
+	systemctl start conductor
+
+bawwab
+^^^^^^
+
+Again, same procedure:
+
+.. code:: console
+
+	git clone https://github.com/leibniz-psychology/bawwab.git
+	cd bawwab
+	guix package -p /usr/local/profiles/bawwab -f contrib/bawwab.scm
+
+	mkdir /etc/bawwab
+	chmod 750 /etc/bawwab
+	cp contrib/config.py /etc/bawwab/
+	# edit the config file
+
+	cp contrib/*.service /etc/systemd/system
+	# edit service file again
+	systemctl daemon-reload
+	systemctl enable bawwab
+	systemctl start bawwab
+
