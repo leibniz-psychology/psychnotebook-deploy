@@ -5,6 +5,7 @@ compute.zpid.de admin documentation
 	:hidden:
 
 	configuration
+	performance
 
 compute.zpid.de is a general-purpose compute cluster for end-users. It provides
 shared volumes through NFS, user authentication via Kerberos, LDAP and clumsy_,
