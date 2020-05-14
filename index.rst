@@ -5,6 +5,7 @@ compute.zpid.de admin documentation
 	:hidden:
 
 	configuration
+	tasks
 	performance
 
 compute.zpid.de is a general-purpose compute cluster for end-users. It provides
