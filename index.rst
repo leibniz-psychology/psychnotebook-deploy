@@ -1,5 +1,5 @@
-compute.zpid.de admin documentation
-===================================
+compute.zpid.de
+===============
 
 .. toctree::
 	:hidden:
@@ -27,4 +27,12 @@ External documentation:
 .. _guix manual: https://guix.gnu.org/manual/en/guix.html
 .. _guix cookbook: https://guix.gnu.org/cookbook/en/guix-cookbook.html
 
+
+Related work
+------------
+
+Obviously this is not the only effort to integrate interactive applications
+into compute clusters.
+
+- https://openondemand.org/
 
