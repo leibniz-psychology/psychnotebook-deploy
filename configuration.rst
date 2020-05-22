@@ -540,3 +540,75 @@ Again, same procedure:
 	systemctl enable bawwab
 	systemctl start bawwab
 
+nginx
+^^^^^
+
+nginx serves as a reverse proxy for all applications.
+
+.. code:: console
+
+	apt install nginx
+
+Then configure it:
+
+.. code:: console
+
+	cat <<EOF > /etc/nginx/sites-available/bawwab
+	server {
+			listen 80;
+			listen [::]:80;
+
+			root /nonexistent;
+
+			server_name www.dev.compute.zpid.de;
+
+			location / {
+				proxy_set_header Host $host;
+				proxy_set_header X-Real-IP $remote_addr;
+				proxy_pass http://unix:/run/bawwab/bawwab.socket:/;
+				proxy_http_version 1.1;
+				proxy_set_header Upgrade $http_upgrade;
+				proxy_set_header Connection $connection_upgrade;
+				# reduce latency
+				proxy_buffering off;
+				proxy_request_buffering off;
+			}
+	}
+	EOF
+
+	cat <<EOF > /etc/nginx/sites-available/conductor
+	default upgrade;
+	''      close;
+	}
+
+	server {
+			listen 80 default_server;
+			listen [::]:80 default_server;
+
+			root /nonexistent;
+
+			server_name .userapp.local;
+
+			location / {
+				proxy_set_header Host $host;
+				proxy_set_header X-Real-IP $remote_addr;
+				proxy_pass http://unix:/run/conductor/conductor.socket:/;
+				proxy_http_version 1.1;
+				proxy_set_header Upgrade $http_upgrade;
+				proxy_set_header Connection $connection_upgrade;
+				# reduce latency
+				proxy_buffering off;
+				proxy_request_buffering off;
+
+				# Alter CSP, so we can embed into iframes
+				proxy_hide_header x-frame-options;
+				proxy_hide_header content-security-policy;
+				add_header Content-Security-Policy "frame-ancestors 'self' https://www.psychnotebook.org;" always;
+			}
+	}
+	EOF
+
+	ln -sv ../sites-available/bawwab /etc/nginx/sites-enabled/bawwab
+	ln -sv ../sites-available/conductor /etc/nginx/sites-enabled/conductor
+	systemctl restart nginx
+
