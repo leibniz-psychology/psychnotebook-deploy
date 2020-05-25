@@ -612,3 +612,152 @@ Then configure it:
 	ln -sv ../sites-available/conductor /etc/nginx/sites-enabled/conductor
 	systemctl restart nginx
 
+collectd
+^^^^^^^^
+
+collectd collects statistics.
+
+.. code:: console
+
+	guix package -p /usr/local/profiles/collectd -i collectd
+
+Add the configuration:
+
+.. code:: console
+
+	cat <<EOF > /etc/collectd.conf
+	BaseDir "/var/lib/collectd"
+	PIDFile "/run/collectd/collectd.pid"
+	Interval 10.0
+
+	LoadPlugin curl_json
+	LoadPlugin cpu
+	LoadPlugin load
+	LoadPlugin rrdtool
+	LoadPlugin df
+	LoadPlugin disk
+	LoadPlugin fhcount
+	LoadPlugin interface
+	LoadPlugin memory
+	LoadPlugin nginx
+	LoadPlugin processes
+	LoadPlugin tcpconns
+	LoadPlugin vmem
+
+	<Plugin curl_json>
+	<URL "https://user.psychnotebook.org/_conductor/status">
+		Instance "conductor"
+		<Key "requestTotal">
+			Type "http_requests"
+		</Key>
+
+		<Key "requestActive">
+			Type "current_connections"
+		</Key>
+
+		<Key "routesTotal">
+			Type "current_sessions"
+		</Key>
+
+		<Key "broken">
+			Type "http_requests"
+		</Key>
+
+		<Key "noroute">
+			Type "http_requests"
+		</Key>
+
+		<Key "unauthorized">
+			Type "http_requests"
+		</Key>
+	</URL>
+	<URL "https://www.psychnotebook.org/api/status">
+		Instance "bawwab"
+		<Key "session/active10m">
+			Type "current_sessions"
+		</Key>
+
+		<Key "user/total">
+			Type "users"
+		</Key>
+		<Key "user/anonymous">
+			Type "users"
+		</Key>
+		<Key "user/login1d">
+			Type "users"
+		</Key>
+
+		<Key "workspace/total">
+			Type "objects"
+		</Key>
+
+		<Key "application/total/all">
+			Type "objects"
+		</Key>
+		<Key "application/active1d/jupyterlab">
+			Type "objects"
+		</Key>
+		<Key "application/active1d/rstudio">
+			Type "objects"
+		</Key>
+		<Key "application/active1d/all">
+			Type "objects"
+		</Key>
+		<Key "application/activeNow">
+			Type "current_sessions"
+		</Key>
+
+		<Key "status/collecttime">
+			Type "response_time"
+		</Key>
+	</URL>
+	</Plugin>
+
+	<Plugin cpu>
+		ReportByCpu false
+	</Plugin>
+
+	<Plugin disk>
+		Disk "sda"
+	</Plugin>
+
+	<Plugin df>
+		MountPoint "/"
+	</Plugin>
+
+	<Plugin interface>
+		Interface "ens160"
+	</Plugin>
+
+	<Plugin nginx>
+		URL "http://localhost/nginx/status"
+	</Plugin>
+
+	<Plugin tcpconns>
+		LocalPort 80
+		LocalPort 22
+	</Plugin>
+	EOF
+
+Add a systemd unit:
+
+.. code:: console
+
+	cat << EOF > /etc/systemd/system/collectd.service
+	[Unit]
+	Description=Statistics collection
+
+	[Service]
+	ExecStart=/usr/local/profiles/collectd/sbin/collectd -C /etc/collectd.conf -f
+	StandardOutput=syslog
+	StandardError=syslog
+	RuntimeDirectory=collectd/
+
+	[Install]
+	WantedBy=multi-user.target
+	EOF
+
+	systemctl daemon-reload
+	systemctl enable collectd
+	systemctl start collectd
+
