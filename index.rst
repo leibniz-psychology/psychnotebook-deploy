@@ -35,4 +35,5 @@ Obviously this is not the only effort to integrate interactive applications
 into compute clusters.
 
 - https://openondemand.org/
+- https://jhpce.jhu.edu/knowledge-base/rstudio-server/
 
