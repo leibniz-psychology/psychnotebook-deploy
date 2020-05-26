@@ -134,6 +134,14 @@ Add initial configuration and essential user accounts to LDAP:
 	olcAccess: {3}to * by * read
 	olcRootDN: cn=admin,dc=compute,dc=zpid,dc=de
 
+	# make sure ldap returns an unlimited amount of results for paged queries,
+	# so sssd works correctly with large number of groups per user (for
+	# example)
+	dn: olcDatabase={-1}frontend,cn=config
+	changetype: modify
+	replace: olcSizeLimit
+	olcSizeLimit: unlimited
+
 	dn: dc=compute,dc=zpid,dc=de
 	objectClass: top
 	objectClass: dcObject
