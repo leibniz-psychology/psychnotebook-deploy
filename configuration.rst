@@ -577,6 +577,7 @@ Then configure it:
 	EOF
 
 	cat <<EOF > /etc/nginx/sites-available/conductor
+	map $http_upgrade $connection_upgrade {
 	default upgrade;
 	''      close;
 	}
