@@ -20,8 +20,8 @@
 # -- Project information -----------------------------------------------------
 
 project = 'compute.zpid.de'
-copyright = '2019, Lars-Dominik Braun'
-author = 'Lars-Dominik Braun'
+copyright = '2019–2020 PsychNotebook'
+author = 'PsychNotebook'
 
 # The short X.Y version
 version = ''
@@ -136,7 +136,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'computezpidde.tex', 'compute.zpid.de Documentation',
-     'Lars-Dominik Braun', 'manual'),
+     'PsychNotebook', 'manual'),
 ]
 
 
