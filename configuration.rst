@@ -682,6 +682,8 @@ Add the configuration:
 	</URL>
 	<URL "https://www.psychnotebook.org/api/status">
 		Instance "bawwab"
+		Header "x-no-session: 1"
+
 		<Key "session/active10m">
 			Type "current_sessions"
 		</Key>
