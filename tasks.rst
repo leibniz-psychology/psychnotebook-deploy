@@ -45,8 +45,53 @@ Right now only one profile exists for all project. That makes it easy to add
 new packages to all user’s workspaces. It also means there is a lot potential
 to break things unfortunately. *This will change in the future!*
 
-First add the name of the package to ``/gnu/manifests/psychnotebook.scm``, then
-run
+Import
+++++++
+
+If the software you want to install is already packaged for guix this step is
+not necessary. Otherwise you’ll need to package it. guix provides importer for
+PyPi and CRAN, see `guix import
+<https://guix.gnu.org/manual/en/guix.html#Invoking-guix-import>`__. These make
+life alot easier, but they are not guaranteed to work. For example to import
+*nlstools* from CRAN navigate to your checkout of the repository guix-zpid,
+then run:
+
+.. code:: console
+
+	guix import cran -r nlstools >> zpid/packages/cran.scm
+
+Edit the license field of the package to include the prefix ``license:``, then
+try to build it with:
+
+.. code:: console
+
+	guix build -L . r-nlstools
+
+To make sure the package actually works, add it to an environment and try to
+load it inside R:
+
+.. code:: console
+
+	guix environment -L . --ad-hoc r-nlstools r -- R
+	# (now inside R)
+	library(nlstools)
+
+If that works you’re probably good to go. Commit the new package with ``git
+commit``, push to GitHub with ``git push`` and update the copy at
+``/gnu/channels/zpid``.
+
+The same workflow also applies to PyPi, replace ``guix import cran`` with
+``guix import pypi`` and ``guix environment`` with
+
+.. code:: console
+
+	guix environment -L . --ad-hoc python-foobar python -- python
+
+Profiles
+++++++++
+
+First add the name of the package to ``/gnu/manifests/psychnotebook.scm``.
+Include a comment why you’re adding the package. Then run
 
 .. code:: console
 
@@ -54,9 +99,20 @@ run
 	guix pull
 	source ~/.config/guix/current/etc/profile
 	# then update the profile
-	guix package -p /var/guix/profiles/psychnotebook/2020-04-04 \
+	guix package -p /var/guix/profiles/psychnotebook/$DATE \
 			-m /gnu/manifests/psychnotebook.scm --allow-collisions
 
+Replace ``$DATE`` with the version of the profile. When changing ``$DATE``,
+you’ll also need to update the symlink in ``/etc/skel``, so new workspaces will
+use this updated profile:
+
+.. code:: console
+
+	rm /etc/skel/.guix-profile
+	ln -sv /var/guix/profiles/psychnotebook/%DATE% /etc/skel/.guix-profile
+
+Only do that if you introduced substantial changes to the environment, i.e.
+changed a package. Adding new packages does not qualify for a ``$DATE`` change.
 If anything goes wrong, you can always roll back to a previous version with
 ``--switch-generation``.
 
