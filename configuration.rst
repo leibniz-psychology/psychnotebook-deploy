@@ -69,19 +69,27 @@ channel configuration in ``/etc/guix/channels.scm``:
 .. code:: scheme
 
 	(list
-		(channel
-			(name 'guix)
-			(url "/gnu/channels/guix"))
-		(channel
-			(name 'zpid)
-			(url "/gnu/channels/zpid")))
+        (channel
+                (name 'guix)
+                (url "/gnu/channels/guix")
+                (introduction
+                  (make-channel-introduction
+                    "9edb3f66fd807b096b48283debdcddccfea34bad"
+                    (openpgp-fingerprint
+                      "BBB0 2DDF 2CEA F6A8 0D1D  E643 A2A0 6DF2 A33A 54FA"))))
+        (channel
+                (name 'zpid)
+                (url "/gnu/channels/zpid")))
 
-And populate the two directories with the repositories `guix
-<https://github.com/leibniz-psychology/guix>`__ and `guix-zpid
-<https://github.com/leibniz-psychology/guix-zpid>`__. Then run ``guix pull``
-*twice* as root (the installer does not support the config file above yet) and
-restart the daemon with ``systemctl restart guix-daemon``. Clean up the dirt
-with ``guix pull -d``.
+And populate the two directories with the repositories:
+
+.. code:: console
+
+	git pull --bare https://git.savannah.gnu.org/git/guix.git guix
+	git pull --bare https://github.com/leibniz-psychology/guix-zpid zpid
+
+Then run ``guix pull`` as root and restart the daemon with ``systemctl restart
+guix-daemon``. Clean up the dirt with ``guix pull -d``.
 
 From the node guix opens an SSH tunnel to the master node’s UNIX domain socket
 via a guile interpreter. This binary must be in ``PATH``, thus run as root:
