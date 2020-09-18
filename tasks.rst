@@ -41,20 +41,14 @@ be network-heavy, but not use a lot of CPU time or generate disk I/O.
 Adding new packages
 -------------------
 
-Right now only one profile exists for all project. That makes it easy to add
-new packages to all user’s workspaces. It also means there is a lot potential
-to break things unfortunately. *This will change in the future!*
-
-Import
-++++++
-
-If the software you want to install is already packaged for guix this step is
-not necessary. Otherwise you’ll need to package it. guix provides importer for
-PyPi and CRAN, see `guix import
+This applies to packages not available in GNU guix yet. guix provides importer
+for PyPi and CRAN, see `guix import
 <https://guix.gnu.org/manual/en/guix.html#Invoking-guix-import>`__. These make
 life alot easier, but they are not guaranteed to work. For example to import
-*nlstools* from CRAN navigate to your checkout of the repository guix-zpid,
+*nlstools* from CRAN navigate to your checkout of the repository `guix-zpid`_,
 then run:
+
+.. _guix-zpid: https://github.com/leibniz-psychology/guix-zpid
 
 .. code:: console
 
@@ -77,8 +71,7 @@ load it inside R:
 	library(nlstools)
 
 If that works you’re probably good to go. Commit the new package with ``git
-commit``, push to GitHub with ``git push`` and update the copy at
-``/gnu/channels/zpid``.
+commit`` and push to GitHub with ``git push``.
 
 The same workflow also applies to PyPi, replace ``guix import cran`` with
 ``guix import pypi`` and ``guix environment`` with
@@ -87,32 +80,19 @@ The same workflow also applies to PyPi, replace ``guix import cran`` with
 
 	guix environment -L . --ad-hoc python-foobar python -- python
 
-Profiles
-++++++++
+Locking and unlocking accounts
+------------------------------
 
-First add the name of the package to ``/gnu/manifests/psychnotebook.scm``.
-Include a comment why you’re adding the package. Then run
+Right now accounts can be locked and unlocked by expiring their principals in
+Kerberos. To lock the account ``joeuser`` run:
 
-.. code:: console
+.. code:: bash
 
-	# make sure your guix command is current
-	guix pull
-	source ~/.config/guix/current/etc/profile
-	# then update the profile
-	guix package -p /var/guix/profiles/psychnotebook/$DATE \
-			-m /gnu/manifests/psychnotebook.scm --allow-collisions
+	kadmin.local modprinc -expire yesterday joeuser
 
-Replace ``$DATE`` with the version of the profile. When changing ``$DATE``,
-you’ll also need to update the symlink in ``/etc/skel``, so new workspaces will
-use this updated profile:
+And to unlock it again run
 
-.. code:: console
+.. code:: bash
 
-	rm /etc/skel/.guix-profile
-	ln -sv /var/guix/profiles/psychnotebook/%DATE% /etc/skel/.guix-profile
-
-Only do that if you introduced substantial changes to the environment, i.e.
-changed a package. Adding new packages does not qualify for a ``$DATE`` change.
-If anything goes wrong, you can always roll back to a previous version with
-``--switch-generation``.
+	kadmin.local modprinc -expire never joeuser
 

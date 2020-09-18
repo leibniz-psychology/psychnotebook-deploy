@@ -1,5 +1,5 @@
-compute.zpid.de
-===============
+PsychNotebook deployment
+========================
 
 .. toctree::
 	:hidden:
@@ -8,10 +8,9 @@ compute.zpid.de
 	tasks
 	performance
 
-compute.zpid.de is a general-purpose compute cluster for end-users. It provides
-shared volumes through NFS, user authentication via Kerberos, LDAP and clumsy_,
-a guix installation as well as reverse proxying via conductor_. Users can log
-in via SSH or a web interface (bawwab_).
+PsychNotebook uses user authentication via Kerberos, LDAP and clumsy_, a guix
+installation as well as reverse proxying via conductor_. Users can log in via
+SSH or a web interface (bawwab_).
 
 .. _clumsy: https://github.com/leibniz-psychology/clumsy
 .. _conductor: https://github.com/leibniz-psychology/conductor
@@ -26,14 +25,4 @@ External documentation:
 
 .. _guix manual: https://guix.gnu.org/manual/en/guix.html
 .. _guix cookbook: https://guix.gnu.org/cookbook/en/guix-cookbook.html
-
-
-Related work
-------------
-
-Obviously this is not the only effort to integrate interactive applications
-into compute clusters.
-
-- https://openondemand.org/
-- https://jhpce.jhu.edu/knowledge-base/rstudio-server/
 

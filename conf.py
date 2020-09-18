@@ -19,7 +19,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'compute.zpid.de'
+project = 'PsychNotebook deployment'
 copyright = '2019–2020 PsychNotebook'
 author = 'PsychNotebook'
 
@@ -84,9 +84,9 @@ html_theme = 'alabaster'
 # documentation.
 #
 html_theme_options = {
-	'description': 'Admin documentation',
+	'description': 'For admins',
 	'github_user': 'leibniz-psychology',
-	'github_repo': 'compute.zpid.de-admin',
+	'github_repo': 'psychnotebook-deploy',
 	}
 
 # Add any paths that contain custom static files (such as style sheets) here,
