@@ -17,30 +17,62 @@ External DNS configuration:
 
 .. code::
 
-	; staging (stg)
-	$ORIGIN stg.psychnotebook.org
-
-	; […]
-
-	; Our main server
+	; Main origin and servers.
+	$ORIGIN psychnotebook.org
+	; Our main server.
 	tiruchirappalli IN A 136.199.86.20
+	; The previous production server on VMWare, until migration is done.
+	visakhapatnam IN A 136.199.85.40
+	; Production sites
+	; Cannot CNAME the TLD, must reference loadbalancer.prd
+	@ IN A 136.199.85.125
+	www IN CNAME loadbalancer.prd
+	*.user IN CNAME loadbalancer.prd
+
+	; production (prd)
+	$ORIGIN prd.psychnotebook.org
 	; Service aliasas
-	; Public web services
+	; Load balancer
+	loadbalancer IN A 136.199.85.125
+	; Public web services.
+	@ IN CNAME bawwab
 	www IN CNAME bawwab
 	*.user IN CNAME conductor
 	; SSH user login
-	ssh IN CNAME tiruchirappalli
+	ssh IN CNAME tiruchirappalli.psychnotebook.org.
 	; Authentication
-	kdc IN CNAME tiruchirappalli
-	ldap IN CNAME tiruchirappalli
+	kdc IN CNAME tiruchirappalli.psychnotebook.org.
+	ldap IN CNAME tiruchirappalli.psychnotebook.org.
 	; NFS
-	nfs IN CNAME tiruchirappalli
+	nfs IN CNAME tiruchirappalli.psychnotebook.org.
 	; Guix master
-	guix IN CNAME tiruchirappalli
+	guix IN CNAME tiruchirappalli.psychnotebook.org.
 	; Conductor web proxy
-	conductor IN CNAME tiruchirappalli
+	conductor IN CNAME tiruchirappalli.psychnotebook.org.
 	; Client app
-	bawwab IN CNAME tiruchirappalli
+	bawwab IN CNAME tiruchirappalli.psychnotebook.org.
+
+	; staging (stg)
+	$ORIGIN stg.psychnotebook.org
+
+	; Service aliasas
+	; Public web services
+	@ IN CNAME bawwab
+	www IN CNAME bawwab
+	*.user IN CNAME conductor
+	; SSH user login
+	ssh IN CNAME visakhapatnam.psychnotebook.org.
+	; Authentication
+	kdc IN CNAME visakhapatnam.psychnotebook.org.
+	ldap IN CNAME visakhapatnam.psychnotebook.org.
+	; NFS
+	nfs IN CNAME visakhapatnam.psychnotebook.org.
+	; Guix master
+	guix IN CNAME visakhapatnam.psychnotebook.org.
+	; Conductor web proxy
+	conductor IN CNAME visakhapatnam.psychnotebook.org.
+	; Client app
+	bawwab IN CNAME visakhapatnam.psychnotebook.org.
 
 NSCD
 ^^^^
