@@ -809,6 +809,8 @@ Then configure it:
 			# do not send this header, it’ll default to unix timestamp 0 due to guix
 			add_header  Last-Modified  "";
 			add_header Cache-Control 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
+			add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";
+			add_header Content-Security-Policy-Report-Only "default-src 'self' *.user.psychnotebook.org www.lifp.de; script-src 'self' 'unsafe-inline' 'unsafe-eval' www.lifp.de; report-uri https://www.psychnotebook.org/api/csp";
 			expires off;
 			etag off;
 
@@ -860,7 +862,7 @@ Then configure it:
 
 			root /nonexistent;
 
-			server_name .user.prd.psychnotebook.org user.stg.psychnotebook.org .user.psychnotebook.org;
+			server_name .user.prd.psychnotebook.org user.stg.psychnotebook.org .user.psychnotebook.org conductor.psychnotebook.org conductor;
 
 			# disable body size limit for applications, which may provide upload functionality
 			client_max_body_size 0;
@@ -881,12 +883,26 @@ Then configure it:
 					proxy_hide_header x-frame-options;
 					proxy_hide_header content-security-policy;
 					add_header Content-Security-Policy "frame-ancestors 'self' https://www.psychnotebook.org;" always;
+
+					add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";
+			}
+	}
+	EOF
+
+	cat <<EOF > /etc/nginx/sites-available/localhost
+	server {
+			listen   localhost:80;
+			server_name localhost;
+
+			location /nginx/status {
+					stub_status;
 			}
 	}
 	EOF
 
 	ln -sv ../sites-available/bawwab /etc/nginx/sites-enabled/bawwab
 	ln -sv ../sites-available/conductor /etc/nginx/sites-enabled/conductor
+	ln -sv ../sites-available/localhost /etc/nginx/sites-enabled/localhost
 	systemctl restart nginx
 
 collectd
@@ -922,7 +938,7 @@ Add the configuration:
 	LoadPlugin vmem
 
 	<Plugin curl_json>
-	<URL "https://user.stg.psychnotebook.org/_conductor/status">
+	<URL "https://conductor/_conductor/status">
 		Instance "conductor"
 		<Key "requestTotal">
 			Type "http_requests"
