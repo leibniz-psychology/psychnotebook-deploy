@@ -23,6 +23,8 @@ External DNS configuration:
 	tiruchirappalli IN A 136.199.86.20
 	; The previous production server on VMWare, until migration is done.
 	visakhapatnam IN A 136.199.85.40
+	; Current backup server
+	muzaffarnagar IN A 136.199.86.65
 	; Production sites
 	; Cannot CNAME the TLD, must reference loadbalancer.prd
 	@ IN A 136.199.85.125
@@ -34,6 +36,8 @@ External DNS configuration:
 	; Service aliasas
 	; Load balancer
 	loadbalancer IN A 136.199.85.125
+	; Backup server
+	backup IN CNAME muzaffarnagar.psychnotebook.org.
 	; Public web services.
 	@ IN CNAME bawwab
 	www IN CNAME bawwab
