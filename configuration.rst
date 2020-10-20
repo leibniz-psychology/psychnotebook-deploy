@@ -1018,3 +1018,41 @@ Add a systemd unit:
 	systemctl enable collectd
 	systemctl start collectd
 
+Backup
+^^^^^^
+
+For psychnotebook, we would like to take the backup of important files of production to backup server daily by 3AM.
+A backup server is at 136.199.86.65. DNS entry is backup.prd.psychnotebook.org.
+
+To accomplish the goal data backup software 'Borg' is used. Details are in '<https://borgbackup.readthedocs.io/>'__.
+To automate the process basically we need a script, systemd service and timer. Systemd service runs the script everyday by 3AM.
+
+In production server:
+
+.. code:: console
+   git clone https://github.com/leibniz-psychology/psychnotebook-admin-tools.git
+   cp backup/backup.service /etc/systemd/system
+   cp backup/backup.timer /etc/systemd/system
+
+.. code:: console
+
+ssh-keygen
+
+Add the public key in ~/.ssh/authorized_keys on backup server.
+Add below detail in ~/.ssh/authorized_keys on backup server.
+
+.. code:: console
+
+command="borg serve --restrict-to-path /storage/backup",restrict ssh-rsa AAAAB3[...]
+
+
+In backup server:
+
+Create a new user namely psychnotebook.
+
+Initialise the repository /storage/backup with an empty passphrase and change the owner.
+
+.. code:: console
+
+borg init --encryption=authenticated-blake2 /storage/backup
+chown -R psychnotebook:psychnotebook /storage/backup
