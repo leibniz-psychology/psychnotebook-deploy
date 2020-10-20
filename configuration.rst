@@ -1030,6 +1030,7 @@ To automate the process basically we need a script, systemd service and timer. S
 In production server:
 
 .. code:: console
+
    git clone https://github.com/leibniz-psychology/psychnotebook-admin-tools.git
    cp backup/backup.service /etc/systemd/system
    cp backup/backup.timer /etc/systemd/system
@@ -1056,3 +1057,4 @@ Initialise the repository /storage/backup with an empty passphrase and change th
 
 borg init --encryption=authenticated-blake2 /storage/backup
 chown -R psychnotebook:psychnotebook /storage/backup
+
