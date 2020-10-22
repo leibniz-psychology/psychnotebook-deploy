@@ -1043,8 +1043,9 @@ Generate a SSH key for root user.
 
    ssh-keygen
 
-Copy the generated public key (~/.ssh/id_<something>.pub) and paste in ~/.ssh/authorized_keys on backup server.
-Add below detail in ~/.ssh/authorized_keys on backup server.
+Add the following line to ``~/.ssh/authorized_keys`` on the backup server,
+replacing ``<public key>`` with root’s public key
+(``~/.ssh/id_<something>.pub``).
 
 .. code:: 
 
