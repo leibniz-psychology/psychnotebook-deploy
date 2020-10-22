@@ -1022,10 +1022,10 @@ Backup
 ^^^^^^
 
 For psychnotebook, we would like to take the backup of important files of production to backup server daily by 3AM.
-A backup server is at 136.199.86.65. DNS entry is backup.prd.psychnotebook.org.
+Backup server DNS entry is backup.prd.psychnotebook.org.
 
-To accomplish the goal data backup software 'Borg' is used. Details are in 'Borg docs
-<https://borgbackup.readthedocs.io>'__.
+To accomplish the goal data backup software 'Borg' is used. Details are in `Borg Docs 
+<https://borgbackup.readthedocs.io>`__.
 To automate the process basically we need a script, systemd service and timer. Systemd service runs the script everyday by 3AM.
 
 In production server:
@@ -1037,23 +1037,27 @@ In production server:
    cp backup/backup.timer /etc/systemd/system
    cp backup/backup.sh /usr/local/sbin
 
-Generate a SSH key
+Generate a SSH key for root user.
 
 .. code:: console
 
    ssh-keygen
 
-Add the public key in ~/.ssh/authorized_keys on backup server.
+Copy the generated public key (~/.ssh/id_<something>.pub) and paste in ~/.ssh/authorized_keys on backup server.
 Add below detail in ~/.ssh/authorized_keys on backup server.
 
 .. code:: 
 
-   command="borg serve --restrict-to-path /storage/backup",restrict ssh-rsa AAAAB3[...]
+   command="borg serve --restrict-to-path /storage/backup",restrict <public key>
 
 
 In backup server:
 
 Create a new user namely psychnotebook.
+
+.. code:: console
+
+   useradd psychnotebook
 
 Initialise the repository /storage/backup with an empty passphrase and change the owner.
 
