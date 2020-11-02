@@ -1032,10 +1032,13 @@ In production server:
 
 .. code:: console
 
-   git clone https://github.com/leibniz-psychology/psychnotebook-admin-tools.git
-   cp backup/backup.service /etc/systemd/system
-   cp backup/backup.timer /etc/systemd/system
-   cp backup/backup.sh /usr/local/sbin
+	git clone https://github.com/leibniz-psychology/psychnotebook-admin-tools.git
+	cp backup/backup.service /etc/systemd/system
+	cp backup/backup.timer /etc/systemd/system
+	cp backup/backup.sh /usr/local/sbin
+	systemctl daemon-reload
+	systemctl enable backup.timer
+	systemctl start backup.timer
 
 Generate a SSH key for root user.
 
@@ -1066,4 +1069,14 @@ Initialise the repository /storage/backup with an empty passphrase and change th
 
    borg init --encryption=authenticated-blake2 /storage/backup
    chown -R psychnotebook:psychnotebook /storage/backup
+
+Add the pruning scripts from the admin tools, namely:
+
+.. code:: console
+
+	cp backup/backup-prune.service /etc/systemd/system
+	cp backup/backup-prune.timer /etc/systemd/system
+	systemctl daemon-reload
+	systemctl enable backup-prune.timer
+	systemctl start backup-prune.timer
 
