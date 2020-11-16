@@ -25,11 +25,16 @@ External DNS configuration:
 	visakhapatnam IN A 136.199.85.40
 	; Current backup server
 	muzaffarnagar IN A 136.199.86.65
+	; Substitute server
+	yamunanagar IN A 144.76.155.175
+	yamunanagar IN AAAA 2a01:4f8:200:23ae::2
 	; Production sites
 	; Cannot CNAME the TLD, must reference loadbalancer.prd
 	@ IN A 136.199.85.125
 	www IN CNAME loadbalancer.prd
 	*.user IN CNAME loadbalancer.prd
+	; Guix substitutes
+	substitutes.guix IN CNAME yamunanagar
 
 	; production (prd)
 	$ORIGIN prd.psychnotebook.org
