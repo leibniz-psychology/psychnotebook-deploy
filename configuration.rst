@@ -923,83 +923,9 @@ collectd collects statistics.
 
 	guix package -p /usr/local/profiles/collectd -i collectd
 
-Add the configuration:
+Add the configuration to :file:`/etc/collectd.conf`.
 
-.. code:: console
-
-	cat <<EOF > /etc/collectd.conf
-	BaseDir "/var/lib/collectd"
-	PIDFile "/run/collectd/collectd.pid"
-	Interval 10.0
-
-	LoadPlugin curl_json
-	LoadPlugin cpu
-	LoadPlugin load
-	LoadPlugin rrdtool
-	LoadPlugin df
-	LoadPlugin disk
-	LoadPlugin fhcount
-	LoadPlugin interface
-	LoadPlugin memory
-	LoadPlugin nginx
-	LoadPlugin processes
-	LoadPlugin tcpconns
-	LoadPlugin vmem
-
-	<Plugin curl_json>
-	<URL "https://conductor/_conductor/status">
-		Instance "conductor"
-		<Key "requestTotal">
-			Type "http_requests"
-		</Key>
-
-		<Key "requestActive">
-			Type "current_connections"
-		</Key>
-
-		<Key "routesTotal">
-			Type "current_sessions"
-		</Key>
-
-		<Key "broken">
-			Type "http_requests"
-		</Key>
-
-		<Key "noroute">
-			Type "http_requests"
-		</Key>
-
-		<Key "unauthorized">
-			Type "http_requests"
-		</Key>
-	</URL>
-	</Plugin>
-
-	<Plugin cpu>
-		ReportByCpu false
-	</Plugin>
-
-	<Plugin disk>
-		Disk "sda"
-	</Plugin>
-
-	<Plugin df>
-		MountPoint "/"
-	</Plugin>
-
-	<Plugin interface>
-		Interface "ens160"
-	</Plugin>
-
-	<Plugin nginx>
-		URL "http://localhost/nginx/status"
-	</Plugin>
-
-	<Plugin tcpconns>
-		LocalPort 80
-		LocalPort 22
-	</Plugin>
-	EOF
+.. literalinclude:: collectd.conf
 
 Add a systemd unit:
 
