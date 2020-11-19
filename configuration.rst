@@ -1,17 +1,13 @@
 Configuration
 =============
 
-This sections details the software installed on the production system. It
-assumes Ubuntu 20.04 as the host system.
-
-Currently only a single server without compute separate compute nodes
-exists. Servers are being named after `Indian cities`_. In the long run we’d
-like to move everything to GNU Guix-based servers.
+Servers are being named after `Indian cities`_. In the long run we’d like to
+move everything to GNU Guix-based servers.
 
 .. _Indian cities: https://en.wikipedia.org/wiki/List_of_cities_in_India_by_population
 
 DNS
-^^^
+---
 
 External DNS configuration:
 
@@ -82,6 +78,11 @@ External DNS configuration:
 	conductor IN CNAME visakhapatnam.psychnotebook.org.
 	; Client app
 	bawwab IN CNAME visakhapatnam.psychnotebook.org.
+
+tiruchirappalli
+---------------
+
+The main production server running Ubuntu 20.04.
 
 NSCD
 ^^^^
@@ -949,8 +950,8 @@ Add a systemd unit:
 	systemctl enable collectd
 	systemctl start collectd
 
-Backup
-^^^^^^
+muzaffarnagar
+-------------
 
 For psychnotebook, we would like to take the backup of important files of production to backup server daily by 3AM.
 Backup server DNS entry is backup.prd.psychnotebook.org.
@@ -1010,4 +1011,14 @@ Add the pruning scripts from the admin tools, namely:
 	systemctl daemon-reload
 	systemctl enable backup-prune.timer
 	systemctl start backup-prune.timer
+
+yamunanagar
+-----------
+
+Substitutes for guix-science and guix-zpid channels. Hosted at Hetzner and
+configured with guix, see machine config in machine.scm_. Currently an mcron
+job frequently pulls from these channels and builds any changes.
+
+.. _machine.scm: https://github.com/leibniz-psychology/psychnotebook-deploy/blob/master/guix/yamunanagar/machine.scm
+
 
