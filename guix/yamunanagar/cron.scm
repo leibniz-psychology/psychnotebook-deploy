@@ -48,7 +48,7 @@
 ;; Collect garbage 5 minutes after midnight every day.
 (define garbage-collector-job
   #~(job "5 0 * * *"
-         "guix gc -F 1G"))
+         "guix gc -F 10G"))
 
 (define-public cron-service
 	       (service mcron-service-type
