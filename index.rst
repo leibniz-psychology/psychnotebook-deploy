@@ -7,6 +7,7 @@ PsychNotebook deployment
 	configuration
 	tasks
 	performance
+	security
 
 PsychNotebook uses user authentication via Kerberos, LDAP and clumsy_, a guix
 installation as well as reverse proxying via conductor_. Users can log in via
