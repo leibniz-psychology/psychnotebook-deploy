@@ -80,6 +80,15 @@ The same workflow also applies to PyPi, replace ``guix import cran`` with
 
 	guix environment -L . --ad-hoc python-foobar python -- python
 
+Mapping email address to username
+---------------------------------
+
+Often people will email us about issues, but we need their UNIX username. It’s easy to map the email address to a username by running:
+
+.. code:: console
+
+	ldapsearch -H ldapi:/// -Y EXTERNAL -b 'ou=people,dc=psychnotebook,dc=org' '(&(mail=user@example.com))' uid 2>/dev/null | grep '^uid:'
+
 Locking and unlocking accounts
 ------------------------------
 
