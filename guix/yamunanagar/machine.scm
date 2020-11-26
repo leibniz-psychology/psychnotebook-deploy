@@ -1,9 +1,7 @@
-;; Heavily inspired by
-;; https://code.divoplade.fr/divoplade-site.git/tree/divoplade/services/cuirass.scm
-
 (use-modules
   (gnu)
   (yamunanagar nginx)
+  (yamunanagar ci)
   (yamunanagar cron)
   (yamunanagar certbot)
   (yamunanagar network)
@@ -44,11 +42,7 @@
                          (name "cms")
                          (comment "")
                          (group "users")
-                         (supplementary-groups '("wheel" "netdev" "audio" "video")))
-                       (user-account
-                         (name "ci")
-                         (comment "mcron-based CI user")
-                         (group "users")))
+                         (supplementary-groups '("wheel" "netdev" "audio" "video"))))
                  %base-user-accounts))
 
   (packages (append (list
@@ -72,6 +66,8 @@
                                  (cache "/var/cache/guix/publish")
                                  ;; 1 month
                                  (ttl 2592000)))
+		      (service ntp-service-type)
+		      (service channel-builder-service-type)
                       static-network-service
                       cron-service
                       nginx-service
