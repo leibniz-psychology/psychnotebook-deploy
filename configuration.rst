@@ -1008,6 +1008,7 @@ Add the pruning scripts from the admin tools, namely:
 
 	cp backup/backup-prune.service /etc/systemd/system
 	cp backup/backup-prune.timer /etc/systemd/system
+	cp backup/backup-prune.sh /usr/local/sbin
 	systemctl daemon-reload
 	systemctl enable backup-prune.timer
 	systemctl start backup-prune.timer
