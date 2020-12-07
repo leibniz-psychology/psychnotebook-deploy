@@ -38,8 +38,10 @@ send it a SIGTERM.  Unfortunately the Linux kernel lacks per-process accounting
 of network activity, rendering this method unreliable, because a process might
 be network-heavy, but not use a lot of CPU time or generate disk I/O.
 
-Adding new packages
--------------------
+.. _import:
+
+Import missing packages
+-----------------------
 
 This applies to packages not available in GNU guix yet. guix provides importer
 for PyPi and CRAN, see `guix import
@@ -79,6 +81,21 @@ The same workflow also applies to PyPi, replace ``guix import cran`` with
 .. code:: console
 
 	guix environment -L . --ad-hoc python-foobar python -- python
+
+Modify default project
+----------------------
+
+The workspace command uses the default project at :file:`/etc/mashru3/skel`
+when `workspace create` is called. To add a new package make sure it is
+available in Guix (see import_), then edit
+:file:`/etc/mashru3/skel/.config/guix/manifest.scm` and update the cache using:
+
+.. code:: console
+
+	pushd /etc/mashru3/skel/.config/guix
+	guix pull -p current
+	./current/bin/guix package -m manifest.scm  -p ../../.guix-profile
+	popd
 
 Mapping email address to username
 ---------------------------------
