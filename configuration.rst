@@ -17,8 +17,6 @@ External DNS configuration:
 	$ORIGIN psychnotebook.org
 	; Our main server.
 	tiruchirappalli IN A 136.199.86.20
-	; The previous production server on VMWare, until migration is done.
-	visakhapatnam IN A 136.199.85.40
 	; Current backup server
 	muzaffarnagar IN A 136.199.86.65
 	; Substitute server
@@ -56,28 +54,6 @@ External DNS configuration:
 	conductor IN CNAME tiruchirappalli.psychnotebook.org.
 	; Client app
 	bawwab IN CNAME tiruchirappalli.psychnotebook.org.
-
-	; staging (stg)
-	$ORIGIN stg.psychnotebook.org
-
-	; Service aliasas
-	; Public web services
-	@ IN CNAME bawwab
-	www IN CNAME bawwab
-	*.user IN CNAME conductor
-	; SSH user login
-	ssh IN CNAME visakhapatnam.psychnotebook.org.
-	; Authentication
-	kdc IN CNAME visakhapatnam.psychnotebook.org.
-	ldap IN CNAME visakhapatnam.psychnotebook.org.
-	; NFS
-	nfs IN CNAME visakhapatnam.psychnotebook.org.
-	; Guix master
-	guix IN CNAME visakhapatnam.psychnotebook.org.
-	; Conductor web proxy
-	conductor IN CNAME visakhapatnam.psychnotebook.org.
-	; Client app
-	bawwab IN CNAME visakhapatnam.psychnotebook.org.
 
 tiruchirappalli
 ---------------
