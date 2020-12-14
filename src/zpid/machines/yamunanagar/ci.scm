@@ -2,7 +2,7 @@
 ;;; which would run multiple jobs at the same time if they are too slow to finish
 ;;; until the next one is started)
 
-(define-module (yamunanagar ci)
+(define-module (zpid machines yamunanagar ci)
 	       #:use-module (gnu)
 	       #:use-module (guix gexp)
 	       #:use-module (guix modules)

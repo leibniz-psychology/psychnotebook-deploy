@@ -1,4 +1,4 @@
-(define-module (yamunanagar certbot)
+(define-module (zpid machines yamunanagar certbot)
 	       #:use-module (gnu)
 	       #:use-module (guix gexp)
 	       #:use-module (gnu services certbot))

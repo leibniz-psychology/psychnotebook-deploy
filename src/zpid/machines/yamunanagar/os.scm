@@ -1,16 +1,18 @@
-(use-modules
-  (gnu)
-  (yamunanagar nginx)
-  (yamunanagar ci)
-  (yamunanagar cron)
-  (yamunanagar certbot)
-  (yamunanagar network)
-  (nongnu packages linux)
-  (nongnu system linux-initrd))
-(use-service-modules ssh networking virtualization mcron)
+(define-module (zpid machines yamunanagar os)
+ #:use-module (gnu)
+ #:use-module (zpid machines yamunanagar nginx)
+ #:use-module (zpid machines yamunanagar ci)
+ #:use-module (zpid machines yamunanagar cron)
+ #:use-module (zpid machines yamunanagar certbot)
+ #:use-module (zpid machines yamunanagar network)
+ #:use-module (nongnu packages linux)
+ #:use-module (nongnu system linux-initrd))
+
+(use-service-modules ssh networking virtualization mcron admin)
 (use-package-modules bootloaders certs ssh)
 
-(operating-system
+(define-public yamunanagar-os
+ (operating-system
   (host-name "yamunanagar.psychnotebook.org")
   (timezone "Europe/Berlin")
   (locale "en_US.utf8")
@@ -55,9 +57,10 @@
                                (openssh-configuration
                                  (permit-root-login #f)
                                  (password-authentication? #f)
+                                 (port-number 2222)
                                  (authorized-keys
-                                   `(("ldb" ,(local-file "../keys/ldb.pub"))
-                                     ("cms" ,(local-file "../keys/cms.pub"))))))
+                                   `(("ldb" ,(local-file "../../../keys/ldb.pub"))
+                                     ("cms" ,(local-file "../../../keys/cms.pub"))))))
                       (service guix-publish-service-type
                                (guix-publish-configuration
                                  (host "127.0.0.1")
@@ -66,11 +69,22 @@
                                  (cache "/var/cache/guix/publish")
                                  ;; 1 month
                                  (ttl 2592000)))
-		      (service ntp-service-type)
-		      (service channel-builder-service-type)
+                      (service ntp-service-type)
+                      (service channel-builder-service-type)
+                      (service unattended-upgrade-service-type
+                               (unattended-upgrade-configuration
+                                (channels #~(cons* (channel
+                                                    (name 'psychnotebook-deploy)
+                                                    (url "https://github.com/leibniz-psychology/psychnotebook-deploy.git"))
+                                             %default-channels))
+                                 (operating-system-file
+                                  (scheme-file "config.scm"
+                                    #~(@ (zpid machines yamunanagar os) yamunanagar-os)))
+                                 (schedule "55 13 * * *")
+                                 (services-to-restart '(nginx ntpd guix-publish ssh-daemon mcron))))
                       static-network-service
                       cron-service
                       nginx-service
                       certbot-service)
-                    %base-services)))
+                      %base-services))))
 

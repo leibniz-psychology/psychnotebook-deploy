@@ -20,7 +20,7 @@
 ;; taken from https://framagit.org/tyreunom/system-configuration/blob/master/modules/config/network.scm
 ;;
 
-(define-module (yamunanagar network)
+(define-module (zpid machines yamunanagar network)
   #:use-module (gnu packages linux)
   #:use-module (gnu services)
   #:use-module (gnu services shepherd)

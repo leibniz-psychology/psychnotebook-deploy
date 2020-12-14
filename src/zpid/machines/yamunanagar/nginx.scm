@@ -1,6 +1,6 @@
 ;; nginx may fail to start without let’s encrypt certificates
 
-(define-module (yamunanagar nginx)
+(define-module (zpid machines yamunanagar nginx)
 	       #:use-module (gnu)
 	       #:use-module (guix gexp)
 	       #:use-module (gnu services web))
