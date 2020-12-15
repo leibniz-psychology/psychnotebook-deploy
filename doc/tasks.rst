@@ -122,3 +122,11 @@ And to unlock it again run
 
 	kadmin.local modprinc -expire never joeuser
 
+Adding message of the day (motd)
+--------------------------------
+
+Maintenance and service interruptions can be announced by setting the server’s
+message of the day (motd) in :path:`/etc/motd`. It’s a plain-text file and its
+contents will be displayed by SSH (via pam) and therefore also by bawwab (which
+reads SSH’s banner).
+
