@@ -1,5 +1,6 @@
 (define-module (zpid machines yamunanagar os)
  #:use-module (gnu)
+ #:use-module (zpid services collectd)
  #:use-module (zpid machines yamunanagar nginx)
  #:use-module (zpid machines yamunanagar ci)
  #:use-module (zpid machines yamunanagar cron)
@@ -86,7 +87,10 @@
                                   (scheme-file "config.scm"
                                     #~(@ (zpid machines yamunanagar os) yamunanagar-os)))
                                  (schedule "55 13 * * *")
-                                 (services-to-restart '(nginx ntpd guix-publish ssh-daemon mcron))))
+                                 (services-to-restart '(nginx collectd ntpd guix-publish ssh-daemon mcron))))
+                      (service collectd-service-type
+                       (collectd-configuration
+                        (file (local-file "collectd.conf"))))
                       static-network-service
                       cron-service
                       nginx-service
