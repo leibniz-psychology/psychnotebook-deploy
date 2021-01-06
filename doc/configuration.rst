@@ -993,9 +993,9 @@ yamunanagar
 -----------
 
 Substitutes for guix-science and guix-zpid channels. Hosted at Hetzner and
-configured with guix, see machine config in machine.scm_. Currently an mcron
+configured with guix, see `machine config`_. Currently an mcron
 job frequently pulls from these channels and builds any changes.
 
-.. _machine.scm: https://github.com/leibniz-psychology/psychnotebook-deploy/blob/master/guix/yamunanagar/machine.scm
+.. _machine config: https://github.com/leibniz-psychology/psychnotebook-deploy/blob/master/src/zpid/machines/yamunanagar/
 
 

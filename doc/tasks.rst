@@ -86,7 +86,7 @@ Modify default project
 ----------------------
 
 The workspace command uses the default project at :file:`/etc/mashru3/skel`
-when `workspace create` is called. To add a new package make sure it is
+when ``workspace create`` is called. To add a new package make sure it is
 available in Guix (see import_), then edit
 :file:`/etc/mashru3/skel/.config/guix/manifest.scm` and update the cache using:
 
@@ -126,7 +126,7 @@ Adding message of the day (motd)
 --------------------------------
 
 Maintenance and service interruptions can be announced by setting the server’s
-message of the day (motd) in :path:`/etc/motd`. It’s a plain-text file and its
+message of the day (motd) in :file:`/etc/motd`. It’s a plain-text file and its
 contents will be displayed by SSH (via pam) and therefore also by bawwab (which
 reads SSH’s banner).
 

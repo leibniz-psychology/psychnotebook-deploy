@@ -36,3 +36,11 @@ If you entered the wrong PIN multiple times run
 
 Enter admin pin and new pin.
 
+External resources
+------------------
+
+`OWASP Cheat Sheet Series`_
+	Web application security recommendations.
+
+.. _OWASP Cheat Sheet Series: https://cheatsheetseries.owasp.org/
+
