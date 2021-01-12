@@ -1,0 +1,239 @@
+#!/usr/bin/env python3
+
+"""
+Create plots from collectd’s rrd
+"""
+
+import subprocess, argparse, os
+from glob import glob
+
+class RRDGraph:
+    just = 12
+    # solarized
+    colors = [
+        "b58900",
+        "cb4b16",
+        "dc322f",
+        "d33682",
+        "6c71c4",
+        "268bd2",
+        "2aa198",
+        "859900",
+        ]
+    background = 'fdf6e3' # base3
+    plotBackground = 'eee8d5' # base2
+    grid = '839496' # base0
+    gridMajor = '657b83' #base00
+    text = '586e75' # base01
+
+    def __init__ (self, path, title, start, end):
+        self.cmd = [
+                'rrdtool',
+                'graph',
+                path,
+                '--imgformat', 'SVG',
+                '--start', start,
+                '--end', end,
+                '--title', title,
+                '--watermark', 'psychnotebook.org',
+                '--color', f'BACK#{self.background}',
+                '--color', f'CANVAS#{self.plotBackground}',
+                '--color', f'FONT#{self.text}',
+                '--color', f'GRID#{self.grid}',
+                '--color', f'MGRID#{self.gridMajor}',
+                '--color', f'ARROW#{self.text}',
+                '--color', f'AXIS#{self.text}',
+                '--font', f'DEFAULT:8:mononoki',
+                '--font', f'WATERMARK:6',
+                # no border
+                '--border', '0',
+                # two spaces for square
+                'COMMENT:  ' + ''.join (map (lambda x: x.rjust (self.just), ['', 'Min', 'Avg', 'Max'])) + r'\l',
+                ]
+        self.defs = []
+        self.areas = []
+        self.lines = []
+        self.color = iter (self.colors)
+
+    def maybeStack (self, l, v, stack=True):
+        if l and stack:
+            l.append (v + ':STACK')
+        else:
+            l.append (v)
+
+    def data (self, name, path, ds, cf, stack=True):
+        color = next (self.color)
+        self.defs += [
+            f'DEF:{name}={path}:{ds}:{cf}',
+            f'VDEF:{name}min={name},MINIMUM',
+            f'VDEF:{name}avg={name},AVERAGE',
+            f'VDEF:{name}max={name},MAXIMUM',
+            ]
+        self.maybeStack (self.areas, f'AREA:{name}#{color}55:', stack)
+        self.maybeStack (self.lines, f'LINE1:{name}#{color}:{name.ljust(self.just)}', stack)
+        self.lines += [
+            f'GPRINT:{name}min:%8.2lf %S',
+            f'GPRINT:{name}avg:%8.2lf %S',
+            f'GPRINT:{name}max:%8.2lf %S\l',
+            ]
+        return self
+
+    def run (self):
+        try:
+            subprocess.run (self.cmd + self.defs + self.areas + self.lines, check=True, stdout=subprocess.DEVNULL)
+        except subprocess.CalledProcessError as e:
+            print (e)
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Pretty plots.')
+    parser.add_argument('--start', default='now-1d')
+    parser.add_argument('--end', default='now')
+    parser.add_argument('source')
+    parser.add_argument('dest')
+
+    args = parser.parse_args()
+
+    start = args.start
+    end = args.end
+    root = args.source
+    dest = args.dest
+    server = os.path.basename (args.source).split ('.', 1)[0]
+
+    RRDGraph (f'{dest}/memory.svg', f'memory (max) - {server}', start, end) \
+            .data('used', f'{root}/memory/memory-used.rrd', 'value', 'MAX') \
+            .data('buffered', f'{root}/memory/memory-buffered.rrd', 'value', 'MAX') \
+            .data('cached', f'{root}/memory/memory-cached.rrd', 'value', 'MAX') \
+            .data('free', f'{root}/memory/memory-free.rrd', 'value', 'MAX') \
+            .run ()
+
+    RRDGraph (f'{dest}/cpu.svg', f'cpu (max) - {server}', start, end) \
+            .data ('interrupt', f'{root}/cpu/percent-interrupt.rrd', 'value', 'MAX') \
+            .data ('nice', f'{root}/cpu/percent-nice.rrd', 'value', 'MAX') \
+            .data ('softirq', f'{root}/cpu/percent-softirq.rrd', 'value', 'MAX') \
+            .data ('steal', f'{root}/cpu/percent-steal.rrd', 'value', 'MAX') \
+            .data ('system', f'{root}/cpu/percent-system.rrd', 'value', 'MAX') \
+            .data ('user', f'{root}/cpu/percent-user.rrd', 'value', 'MAX') \
+            .data ('wait', f'{root}/cpu/percent-wait.rrd', 'value', 'MAX') \
+            .run ()
+
+    for d in glob (f'{root}/disk-*'):
+        if os.path.isdir (d):
+            _, disk = d.rsplit ('-')
+            RRDGraph (f'{dest}/disk-{disk}-iotime.svg', f'disk {disk} iotime (max) - {server}', start, end) \
+                    .data ('absolute', f'{root}/disk-{disk}/disk_io_time.rrd', 'io_time', 'MAX', stack=False) \
+                    .data ('weighted', f'{root}/disk-{disk}/disk_io_time.rrd', 'weighted_io_time', 'MAX', stack=False) \
+                    .run ()
+
+            RRDGraph (f'{dest}/disk-{disk}-time.svg', f'disk {disk} io latency (max) - {server}', start, end) \
+                    .data ('read', f'{root}/disk-{disk}/disk_time.rrd', 'read', 'MAX', stack=False) \
+                    .data ('write', f'{root}/disk-{disk}/disk_time.rrd', 'write', 'MAX', stack=False) \
+                    .run ()
+
+            RRDGraph (f'{dest}/disk-{disk}-ops.svg', f'disk {disk} ops (max) - {server}', start, end) \
+                    .data ('read', f'{root}/disk-{disk}/disk_ops.rrd', 'read', 'MAX', stack=False) \
+                    .data ('write', f'{root}/disk-{disk}/disk_ops.rrd', 'write', 'MAX', stack=False) \
+                    .run ()
+
+            RRDGraph (f'{dest}/disk-{disk}-io.svg', f'disk {disk} io (max) - {server}', start, end) \
+                    .data ('read', f'{root}/disk-{disk}/disk_octets.rrd', 'read', 'MAX', stack=False) \
+                    .data ('write', f'{root}/disk-{disk}/disk_octets.rrd', 'write', 'MAX', stack=False) \
+                    .run ()
+
+    RRDGraph (f'{dest}/processes.svg', f'processes (max) - {server}', start, end) \
+            .data ('running', f'{root}/processes/ps_state-running.rrd', 'value', 'MAX', stack=False) \
+            .data ('blocked', f'{root}/processes/ps_state-blocked.rrd', 'value', 'MAX', stack=False) \
+            .data ('paging', f'{root}/processes/ps_state-paging.rrd', 'value', 'MAX', stack=False) \
+            .run ()
+
+    RRDGraph (f'{dest}/processes-sleep.svg', f'processes (max) - {server}', start, end) \
+            .data ('sleeping', f'{root}/processes/ps_state-sleeping.rrd', 'value', 'MAX') \
+            .data ('stopped', f'{root}/processes/ps_state-stopped.rrd', 'value', 'MAX') \
+            .data ('zombies', f'{root}/processes/ps_state-zombies.rrd', 'value', 'MAX') \
+            .run ()
+
+    RRDGraph (f'{dest}/forkrate.svg', f'forkrate (max) - {server}', start, end) \
+            .data ('forks', f'{root}/processes/fork_rate.rrd', 'value', 'MAX', stack=False) \
+            .run ()
+
+    RRDGraph (f'{dest}/nginx-requests.svg', f'nginx requests (max) - {server}', start, end) \
+            .data ('requests', f'{root}/nginx/nginx_requests.rrd', 'value', 'MAX', stack=False) \
+            .run ()
+
+    for d in glob (f'{root}/df-*'):
+        if os.path.isdir (d):
+            _, mount = os.path.basename (d).split ('-', 1)
+            RRDGraph (f'{dest}/df-{mount}.svg', f'df {mount} (max) - {server}', start, end) \
+                    .data ('used', f'{root}/df-{mount}/df_complex-used.rrd', 'value', 'MAX', stack=False) \
+                    .run ()
+
+    for d in glob (f'{root}/interface-*'):
+        if os.path.isdir (d):
+            _, ifname = d.rsplit ('-', 1)
+            RRDGraph (f'{dest}/interface-{ifname}.svg', f'interface {ifname} octets (max) - {server}', start, end) \
+                    .data ('receive', f'{d}/if_octets.rrd', 'rx', 'MAX', stack=False) \
+                    .data ('transmit', f'{d}/if_octets.rrd', 'tx', 'MAX', stack=False) \
+                    .run ()
+
+            RRDGraph (f'{dest}/interface-{ifname}-packets.svg', f'interface {ifname} packets (max) - {server}', start, end) \
+                    .data ('receive', f'{d}/if_packets.rrd', 'rx', 'MAX', stack=False) \
+                    .data ('transmit', f'{d}/if_packets.rrd', 'tx', 'MAX', stack=False) \
+                    .run ()
+
+    RRDGraph (f'{dest}/load.svg', f'load (max) - {server}', start, end) \
+            .data ('1m', f'{root}/load/load.rrd', 'shortterm', 'MAX', stack=False) \
+            .data ('5m', f'{root}/load/load.rrd', 'midterm', 'MAX', stack=False) \
+            .data ('15m', f'{root}/load/load.rrd', 'longterm', 'MAX', stack=False) \
+            .run ()
+
+    RRDGraph (f'{dest}/conductor-sessions.svg', f'conductor sessions (max) - {server}', start, end) \
+            .data ('sessions', f'{root}/curl_json-conductor/current_sessions-routesTotal.rrd', 'value', 'MAX', stack=False) \
+            .run ()
+
+    RRDGraph (f'{dest}/conductor-active.svg', f'conductor active connections (max) - {server}', start, end) \
+            .data ('connections', f'{root}/curl_json-conductor/current_connections-requestActive.rrd', 'value', 'MAX', stack=False) \
+            .run ()
+
+    RRDGraph (f'{dest}/conductor-requests.svg', f'conductor requests (max) - {server}', start, end) \
+            .data ('total', f'{root}/curl_json-conductor/http_requests-requestTotal.rrd', 'value', 'MAX', stack=False) \
+            .data ('broken', f'{root}/curl_json-conductor/http_requests-broken.rrd', 'value', 'MAX', stack=False) \
+            .data ('unauthorized', f'{root}/curl_json-conductor/http_requests-unauthorized.rrd', 'value', 'MAX', stack=False) \
+            .data ('noroute', f'{root}/curl_json-conductor/http_requests-noroute.rrd', 'value', 'MAX', stack=False) \
+            .run ()
+
+    RRDGraph (f'{dest}/bawwab-responsetime.svg', f'bawwab response time (max) - {server}', start, end) \
+            .data ('value', f'{root}/curl_json-bawwab/response_time-status-collecttime.rrd', 'value', 'MAX', stack=False) \
+            .run ()
+
+    RRDGraph (f'{dest}/bawwab-sessions.svg', f'bawwab active sessions 10m (max) - {server}', start, end) \
+            .data ('value', f'{root}/curl_json-bawwab/current_sessions-session-active10m.rrd', 'value', 'MAX', stack=False) \
+            .run ()
+
+    RRDGraph (f'{dest}/bawwab-users.svg', f'bawwab users (max) - {server}', start, end) \
+            .data ('value', f'{root}/curl_json-bawwab/users-user-total.rrd', 'value', 'MAX', stack=False) \
+            .run ()
+
+    RRDGraph (f'{dest}/bawwab-processes.svg', f'bawwab processes (max) - {server}', start, end) \
+            .data ('value', f'{root}/curl_json-bawwab/objects-process-processes.rrd', 'value', 'MAX', stack=False) \
+            .run ()
+
+    for d in glob (f'{root}/filecount-*'):
+        if os.path.isdir (d):
+            _, name = os.path.basename (d).split ('-', 1)
+            RRDGraph (f'{dest}/filecount-{name}-files.svg', f'files {name} count (max) - {server}', start, end) \
+            .data ('files', f'{d}/files.rrd', 'value', 'MAX', stack=False) \
+            .run ()
+
+            RRDGraph (f'{dest}/filecount-{name}-bytes.svg', f'files {name} bytes (max) - {server}', start, end) \
+            .data ('bytes', f'{d}/bytes.rrd', 'value', 'MAX', stack=False) \
+            .run ()
+
+    for d in glob (f'{root}/tcpconns-*'):
+        if os.path.isdir (d):
+            _, name = os.path.basename (d).split ('-', 1)
+            RRDGraph (f'{dest}/tcpconns-{name}.svg', f'tcpconns {name} (max) - {server}', start, end) \
+            .data ('established', f'{d}/tcp_connections-ESTABLISHED.rrd', 'value', 'MAX', stack=False) \
+            .data ('time_wait', f'{d}/tcp_connections-TIME_WAIT.rrd', 'value', 'MAX', stack=True) \
+            .data ('close_wait', f'{d}/tcp_connections-CLOSE_WAIT.rrd', 'value', 'MAX', stack=True) \
+            .data ('syn_recv', f'{d}/tcp_connections-SYN_RECV.rrd', 'value', 'MAX', stack=True) \
+            .run ()
+

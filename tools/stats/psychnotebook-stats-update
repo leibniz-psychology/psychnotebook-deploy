@@ -1,0 +1,46 @@
+#!/bin/sh
+
+# should be world-readable
+umask 022
+
+collectdData=/var/lib/collectd
+for D in `ls $collectdData`; do
+	alltimes="1d 1m 1y"
+	for timeframe in $alltimes; do
+		outdir=/var/www/stats/$D/$timeframe/
+		mkdir -p $outdir
+		rm "$outdir"/*
+		psychnotebook-stats-plot --start="now-$timeframe" "$collectdData/$D" "$outdir"
+	done
+
+	outfile=/var/www/stats/$D/index.html
+	cat <<EOF > "$outfile"
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>$D – PsychNotebook stats</title>
+<style>
+.container {
+	display: flex;
+}
+</style>
+</head>
+<body>
+EOF
+
+	find /var/www/stats/$D/1d -type f | sort -n | while read -r L; do
+		echo "<div class=\"container\">" >> "$outfile"
+		base=`basename $L`
+		for timeframe in $alltimes; do
+			echo "<img src=\"$timeframe/$base\">" >> "$outfile"
+		done
+		echo "</div>" >> "$outfile"
+	done
+
+	cat <<EOF >> "$outfile"
+</body>
+</html>
+EOF
+done
+
