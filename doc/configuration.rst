@@ -994,7 +994,8 @@ yamunanagar
 
 Substitutes for guix-science and guix-zpid channels. Hosted at Hetzner and
 configured with guix, see `machine config`_. Currently an mcron
-job frequently pulls from these channels and builds any changes.
+job frequently pulls from these channels and builds any changes. Statistics are
+available at https://yamunanagar.psychnotebook.org/stats/localhost/
 
 .. _machine config: https://github.com/leibniz-psychology/psychnotebook-deploy/blob/master/src/zpid/machines/yamunanagar/
 

@@ -26,5 +26,17 @@
        (list
         (nginx-location-configuration
          (uri "/")
-         (body (list "proxy_pass http://publish;")))))))))))
+         (body (list "proxy_pass http://publish;"))))))
+     (nginx-server-configuration
+      (server-name '("yamunanagar.psychnotebook.org"))
+      (listen '("443 ssl"))
+      (ssl-certificate
+       "/etc/letsencrypt/live/yamunanagar.psychnotebook.org/fullchain.pem")
+      (ssl-certificate-key
+       "/etc/letsencrypt/live/yamunanagar.psychnotebook.org/privkey.pem")
+      (locations
+       (list
+        (nginx-location-configuration
+         (uri "/")
+         (body (list "root /var/www;")))))))))))
 

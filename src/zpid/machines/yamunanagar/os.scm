@@ -1,6 +1,7 @@
 (define-module (zpid machines yamunanagar os)
  #:use-module (gnu)
  #:use-module (zpid services collectd)
+ #:use-module (zpid services stats)
  #:use-module (zpid machines yamunanagar nginx)
  #:use-module (zpid machines yamunanagar ci)
  #:use-module (zpid machines yamunanagar cron)
@@ -91,6 +92,7 @@
                       (service collectd-service-type
                        (collectd-configuration
                         (file (local-file "collectd.conf"))))
+                      (service psychnotebook-stats-service-type)
                       static-network-service
                       cron-service
                       nginx-service
