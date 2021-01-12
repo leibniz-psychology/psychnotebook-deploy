@@ -940,10 +940,9 @@ In production server:
 
 .. code:: console
 
-	git clone https://github.com/leibniz-psychology/psychnotebook-admin-tools.git
-	cp backup/backup.service /etc/systemd/system
-	cp backup/backup.timer /etc/systemd/system
-	cp backup/backup.sh /usr/local/sbin
+	cp tools/backup/backup.service /etc/systemd/system
+	cp tools/backup/backup.timer /etc/systemd/system
+	cp tools/backup/backup.sh /usr/local/sbin
 	systemctl daemon-reload
 	systemctl enable backup.timer
 	systemctl start backup.timer
@@ -982,9 +981,9 @@ Add the pruning scripts from the admin tools, namely:
 
 .. code:: console
 
-	cp backup/backup-prune.service /etc/systemd/system
-	cp backup/backup-prune.timer /etc/systemd/system
-	cp backup/backup-prune.sh /usr/local/sbin
+	cp tools/backup/backup-prune.service /etc/systemd/system
+	cp tools/backup/backup-prune.timer /etc/systemd/system
+	cp tools/backup/backup-prune.sh /usr/local/sbin
 	systemctl daemon-reload
 	systemctl enable backup-prune.timer
 	systemctl start backup-prune.timer

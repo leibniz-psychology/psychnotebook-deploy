@@ -1,0 +1,10 @@
+[Unit]
+Description=Backup the important folders of production server to backup server
+Wants=backup.timer
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/backup.sh
+
+[Install]
+WantedBy=multi-user.target

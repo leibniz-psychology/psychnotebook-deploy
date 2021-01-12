@@ -1,0 +1,12 @@
+[Unit]
+Description=Prune borg repository
+Wants=backup-prune.timer
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/backup-prune.sh
+User=psychnotebook
+Group=psychnotebook
+
+[Install]
+WantedBy=multi-user.target

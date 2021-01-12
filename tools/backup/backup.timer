@@ -1,0 +1,10 @@
+[Unit]
+Description=Backup the important folders of production server to backup server
+Requires=backup.service
+
+[Timer]
+Unit=backup.service
+OnCalendar=*-*-* 03:00:00
+
+[Install]
+WantedBy=timers.target
