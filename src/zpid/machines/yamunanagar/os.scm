@@ -67,7 +67,7 @@
                                (guix-publish-configuration
                                  (host "127.0.0.1")
                                  (port 8082)
-                                 (compression '(("lzip" 7) ("gzip" 9)))
+                                 (compression '(("zstd" 10) ("gzip" 9)))
                                  (cache "/var/cache/guix/publish")
                                  ;; 1 month
                                  (ttl 2592000)))
