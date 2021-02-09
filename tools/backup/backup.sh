@@ -4,7 +4,7 @@
 # have to create temporary files on the server.
 
 # Setting this, so the repo does not need to be given on the commandline:
-export BORG_REPO=ssh://psychnotebook@backup.prd.psychnotebook.org/storage/backup
+export BORG_REPO=ssh://psychnotebook@backup.prd.psychnotebook.org:2222/storage/backup
 
 slapcat \
 		-b 'dc=psychnotebook,dc=org' | \
