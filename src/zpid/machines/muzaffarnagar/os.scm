@@ -109,7 +109,7 @@
         (scheme-file "config.scm"
          #~(@ (zpid machines muzaffarnagar os) os)))
        (schedule "55 13 * * *")
-       (services-to-restart '(ntpd guix-publish ssh-daemon guix-daemon mcron))))
+       (services-to-restart '(ntpd ssh-daemon guix-daemon mcron))))
      (service ntp-service-type)
      (service openssh-service-type
       (openssh-configuration
