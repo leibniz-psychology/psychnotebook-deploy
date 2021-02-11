@@ -67,10 +67,12 @@
                                (guix-publish-configuration
                                  (host "127.0.0.1")
                                  (port 8082)
-                                 (compression '(("zstd" 10) ("gzip" 9)))
+                                 (compression '(("zstd" 19) ("gzip" 9)))
                                  (cache "/var/cache/guix/publish")
+                                 ;; Allow up to 200 MiB
+                                 (cache-bypass-threshold (* 200 1024 1024))
                                  ;; 1 month
-                                 (ttl 2592000)))
+                                 (ttl (* 30 24 60 60))))
                       (service ntp-service-type)
                       (service channel-builder-service-type)
                       (service unattended-upgrade-service-type
