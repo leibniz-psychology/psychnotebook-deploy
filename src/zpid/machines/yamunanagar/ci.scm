@@ -71,8 +71,7 @@
 			       (define (loop)
 				 (invoke #$(file-append guix "/bin/guix")
 					 "time-machine"  "-C" #$channels
-					 "--" "build" "--timeout=7200" "--keep-going" "-m" #$manifest
-					 "--no-grafts")
+					 "--" "build" "--timeout=7200" "--keep-going" "-m" #$manifest)
 				 (sleep 60)
 				 (loop))
 			       (loop))))
