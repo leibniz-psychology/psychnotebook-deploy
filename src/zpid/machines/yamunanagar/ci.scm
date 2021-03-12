@@ -51,6 +51,7 @@
 			  (list '(guix-science packages jasp)
 				'(guix-science packages rstudio)
 				'(guix-science packages jupyter)
+				'(guix-science packages cran)
 				'(zpid packages cran)
 				'(zpid packages rstudio)
 				'(zpid packages psychnotebook)
