@@ -52,6 +52,7 @@
 				'(guix-science packages rstudio)
 				'(guix-science packages jupyter)
 				'(guix-science packages cran)
+				'(guix-science packages bioinformatics)
 				'(zpid packages cran)
 				'(zpid packages rstudio)
 				'(zpid packages psychnotebook)
