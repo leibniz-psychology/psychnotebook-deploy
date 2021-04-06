@@ -32,6 +32,10 @@
 (define borg-prune-job
  #~(job "5 4 * * *" #$borg-prune-script #:user "psychnotebook"))
 
+;; Clean up everything we can.
+(define garbage-collector-job
+  #~(job "5 0 * * *" "guix gc"))
+
 ;; Modules required to boot on VMWare.
 (define vmware-required-modules
  '(
@@ -88,7 +92,8 @@
   (services
    (append
     (list 
-     (simple-service 'borg-prune-job mcron-service-type (list borg-prune-job))
+     (simple-service 'cleanup mcron-service-type
+      (list borg-prune-job garbage-collector-job))
      (service unattended-upgrade-service-type
       (unattended-upgrade-configuration
        (channels #~(cons* (channel
@@ -104,6 +109,7 @@
         (scheme-file "config.scm"
          #~(@ (zpid machines muzaffarnagar os) os)))
        (schedule "55 13 * * *")
+       (system-expiration (* 1 30 24 60 60)) ; Expire after one month.
        (services-to-restart '(ntpd ssh-daemon guix-daemon mcron))))
      (service ntp-service-type)
      (service openssh-service-type
