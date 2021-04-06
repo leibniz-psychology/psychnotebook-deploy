@@ -67,11 +67,6 @@
                    (password (crypt "changeme" "$6$abc"))
                    (supplementary-groups '("wheel" "netdev" "audio" "video")))
                   (user-account
-                   (name "cms")
-                   (comment "")
-                   (group "users")
-                   (supplementary-groups '("wheel" "netdev" "audio" "video")))
-                  (user-account
                    (name "psychnotebook")
                    (comment "Incoming backup user")
                    (group "psychnotebook")))
@@ -118,8 +113,7 @@
        (port-number 2222)
        (authorized-keys
         `(("ldb" ,(local-file "../../../keys/ldb.pub"))
-            ("cms" ,(local-file "../../../keys/cms.pub"))
-            ("psychnotebook" ,(local-file "../../../keys/tiruchirappalli-root.pub"))
+			("psychnotebook" ,(local-file "../../../keys/tiruchirappalli-root.pub"))
          ))))
      static-network-service)
      (modify-services %base-services

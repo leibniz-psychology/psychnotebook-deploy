@@ -41,11 +41,6 @@
                          (comment "")
                          (group "users")
                          (password (crypt "changeme" "$6$abc"))
-                         (supplementary-groups '("wheel" "netdev" "audio" "video")))
-                       (user-account
-                         (name "cms")
-                         (comment "")
-                         (group "users")
                          (supplementary-groups '("wheel" "netdev" "audio" "video"))))
                  %base-user-accounts))
 
@@ -61,8 +56,7 @@
                                  (password-authentication? #f)
                                  (port-number 2222)
                                  (authorized-keys
-                                   `(("ldb" ,(local-file "../../../keys/ldb.pub"))
-                                     ("cms" ,(local-file "../../../keys/cms.pub"))))))
+                                   `(("ldb" ,(local-file "../../../keys/ldb.pub"))))))
                       (service guix-publish-service-type
                                (guix-publish-configuration
                                  (host "127.0.0.1")
