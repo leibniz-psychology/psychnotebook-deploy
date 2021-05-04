@@ -861,6 +861,10 @@ Then configure it:
 				proxy_set_header Upgrade \$http_upgrade;
 				proxy_set_header Connection \$connection_upgrade;
 
+					# make sure websockets will not time out
+					proxy_send_timeout 1d;
+					proxy_read_timeout 1d;
+
 					# reduce latency
 					proxy_buffering off;
 					proxy_request_buffering off;
