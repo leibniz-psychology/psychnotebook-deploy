@@ -596,18 +596,69 @@ clumsy
 	cd clumsy
 	guix package -p /usr/local/profiles/clumsy -f contrib/clumsy.scm
 
-	# copy config files
+	# Create config files
 	mkdir /etc/clumsy
 	chmod 750 /etc/clumsy
-	cp contrib/*.config /etc/clumsy
-	# now edit them
+	cat <<EOF > /etc/clumsy/mkhomedird.config
+	SOCKET = '/var/run/mkhomedird.socket'
+	SOCKET_USER = 'root'
+	SOCKET_GROUP = 'www-data'
+	SOCKET_MODE = 0o660
+
+	DIRECTORIES = {
+				'{homedir}': {
+						'create': '/etc/skel',
+						},
+				'/storage/public/{name}': {
+						'create': True,
+						},
+				'/storage/.Trash/{uid}': {},
+				'/var/guix/profiles/per-user/{name}': {},
+				}
+	EOF
+	cat <<EOF > /etc/clumsy/nscdflushd.config
+	SOCKET = '/var/run/nscdflushd.socket'
+	SOCKET_USER = 'root'
+	SOCKET_GROUP = 'www-data'
+	SOCKET_MODE = 0o660
+	EOF
+	cat <<EOF > /etc/clumsy/usermgrd.config
+	SOCKET = '/var/run/usermgrd.socket'
+	SOCKET_USER = 'root'
+	SOCKET_GROUP = 'bawwab'
+	SOCKET_MODE = 0o660
+
+	MIN_UID = 10000
+	MAX_UID = 5000000
+
+	# LDAP admin authentication
+	LDAP_SERVER = 'ldap://ldap'
+	LDAP_USER = 'cn=psychnotebook,ou=system,dc=psychnotebook,dc=org'
+	LDAP_PASSWORD = 'XXX'
+	LDAP_ENTRY_PEOPLE = 'uid={user},ou=people,dc=psychnotebook,dc=org'
+	LDAP_ENTRY_GROUP = 'cn={user},ou=group,dc=psychnotebook,dc=org'
+
+	# Kerberos admin authentication
+	KERBEROS_USER = 'usermgrd/tiruchirappalli'
+	KERBEROS_KEYTAB = '/etc/clumsy/usermgrd.keytab'
+	KERBEROS_EXPIRE = 'yesterday'
+
+	# connections to other daemons
+	NSCDFLUSHD_SOCKET = '/var/run/nscdflushd.socket'
+	MKHOMEDIRD_SOCKET = '/var/run/mkhomedird.socket'
+
+	# home directory
+	HOME_TEMPLATE = '/storage/home/{user}'
+	EOF
 
 	# then configure systemd
 	cp contrib/*.service /etc/systemd/system
 	# Adjust file paths for ExecStart
 	systemctl daemon-reload
-	systemctl enable …
-	systemctl start …
+	for service in mkhomedird nscdflushd usermgrd; do
+		systemctl enable $service
+		systemctl start $service
+	done
 
 conductor
 ^^^^^^^^^
