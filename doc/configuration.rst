@@ -179,13 +179,15 @@ Add initial configuration and essential user accounts to LDAP:
 	replace: olcAccess
 	# Allow access to root
 	olcAccess: {0}to * by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage by * break
-	olcAccess: {1}to dn.subtree="ou=people,dc=psychnotebook,dc=org" by dn.base="cn=psychnotebook,ou=system,dc=psychnotebook,dc=org" write by dn.base="cn=sssd,ou=system,dc=psychnotebook,dc=org" read
-	olcAccess: {2}to dn.subtree="ou=group,dc=psychnotebook,dc=org" by dn.base="cn=psychnotebook,ou=system,dc=psychnotebook,dc=org" write by dn.base="cn=sssd,ou=system,dc=psychnotebook,dc=org" read
-	olcAccess: {3}to dn.subtree="cn=krb5,dc=psychnotebook,dc=org" by dn.base="cn=kdc,ou=system,dc=psychnotebook,dc=org" write by dn.base="cn=kadmin,ou=system,dc=psychnotebook,dc=org" write by * none
+	olcAccess: {1}to dn.subtree="ou=people,dc=psychnotebook,dc=org" attrs=x-acceptedTermsEffective by dn.base="cn=pamtos,ou=system,dc=psychnotebook,dc=org" write
+	olcAccess: {2}to dn.subtree="ou=terms,dc=psychnotebook,dc=org" by dn.base="cn=pamtos,ou=system,dc=psychnotebook,dc=org" read
+	olcAccess: {3}to dn.subtree="ou=people,dc=psychnotebook,dc=org" by dn.base="cn=psychnotebook,ou=system,dc=psychnotebook,dc=org" write by dn.base="cn=sssd,ou=system,dc=psychnotebook,dc=org" read by dn.base="cn=pamtos,ou=system,dc=psychnotebook,dc=org" read
+	olcAccess: {4}to dn.subtree="ou=group,dc=psychnotebook,dc=org" by dn.base="cn=psychnotebook,ou=system,dc=psychnotebook,dc=org" write by dn.base="cn=sssd,ou=system,dc=psychnotebook,dc=org" read
+	olcAccess: {5}to dn.subtree="cn=krb5,dc=psychnotebook,dc=org" by dn.base="cn=kdc,ou=system,dc=psychnotebook,dc=org" write by dn.base="cn=kadmin,ou=system,dc=psychnotebook,dc=org" write by * none
 	# SSSD also need to search its DN root
-	olcAccess: {4}to dn.base="dc=psychnotebook,dc=org" by dn.base="cn=sssd,ou=system,dc=psychnotebook,dc=org" read
+	olcAccess: {6}to dn.base="dc=psychnotebook,dc=org" by dn.base="cn=sssd,ou=system,dc=psychnotebook,dc=org" read
 	# Everyone can authenticate (so LDAP password authentication works)
-	olcAccess: {5}to * by * auth
+	olcAccess: {7}to * by * auth
 	-
 	replace: olcRootDN
 	olcRootDN: cn=admin,dc=psychnotebook,dc=org
@@ -243,13 +245,19 @@ Add initial configuration and essential user accounts to LDAP:
 	sn: SSSD user
 	objectClass: person
 	objectClass: top
+
+	dn: cn=pamtos,ou=system,dc=psychnotebook,dc=org
+	cn: pamtos
+	sn: pam_tos user
+	objectClass: person
+	objectClass: top
 	EOF
 
 And password-protect each of the accounts kdc, kadmin and psychnotebook using
 
 .. code:: console
 
-	for account in kdc kadmin psychnotebook sssd; do
+	for account in kdc kadmin psychnotebook sssd pamtos; do
 		ldappasswd -S -Y EXTERNAL -H ldapi:/// "cn=${account},ou=system,dc=psychnotebook,dc=org"
 	done
 
@@ -264,7 +272,6 @@ Configure LDAP client’s defaults at ``/etc/ldap/ldap.conf``
 	TLS_CACERT      /etc/ssl/certs/ca-certificates.crt
 
 	SASL_MECH GSSAPI
-
 
 Kerberos
 ^^^^^^^^
@@ -282,6 +289,8 @@ stores its data in ``cn=krb5`` and authenticates using ``cn=kdc,ou=system`` and
 ``cn=kadmin,ou=system``. It should live on the same machine as the LDAP server,
 since both need to interact a lot and using ``ldapi://`` reduces round-trip
 times.
+
+.. _install-ldap-schema:
 
 Install the schema:
 
@@ -499,6 +508,93 @@ permissions and start the daemon:
 
 PAM configuration is handled by Ubuntu.
 
+PAM
+^^^
+
+.. No need to pay attention to pam-auth-update, which only touches common-* files.
+
+Install the ``pam_tos`` module:
+
+.. code:: console
+
+	git clone https://github.com/leibniz-psychology/pam_tos.git
+	cd pam_tos
+	sudo apt install libpam0g-dev libldap2-dev
+	make
+	sudo make install SECURITYDIR=/lib/x86_64-linux-gnu/security
+
+Add its configuration:
+
+.. code:: console
+
+	cat <<EOF > /etc/pam-tos.conf
+	baseDn ou=terms,dc=psychnotebook,dc=org
+	userDnFormat uid=%s,ou=people,dc=psychnotebook,dc=org
+	ldapUri ldap://ldap
+	bindDn cn=pamtos,ou=system,dc=psychnotebook,dc=org
+	bindPassword <password here>
+	EOF
+
+Add the schema from :file:`pam-tos.schema` to OpenLDAP, see :ref:`above <install-ldap-schema>`.
+
+Add some terms of service (you can :ref:`change them later <tosupdate>`):
+
+.. code:: console
+
+	ldapadd -Y EXTERNAL -H ldapi:/// <<EOF
+	dn: ou=terms,dc=psychnotebook,dc=org
+	ou: terms
+	objectClass: top
+	objectClass: organizationalUnit
+
+	dn: x-termsId=tosde,ou=terms,dc=psychnotebook,dc=org
+	objectClass: top
+	objectClass: x-termsAndConditions
+	x-termsId: tosde
+	x-termsKind: tos
+	x-termsLanguage: de
+	x-termsContent: placeholder
+	x-termsEffective: 197001010000Z
+
+	dn: x-termsId=tosen,ou=terms,dc=psychnotebook,dc=org
+	objectClass: top
+	objectClass: x-termsAndConditions
+	x-termsId: tosen
+	x-termsKind: tos
+	x-termsLanguage: en
+	x-termsContent: placeholder
+	x-termsEffective: 197001010000Z
+
+	dn: x-termsId=privacyde,ou=terms,dc=psychnotebook,dc=org
+	objectClass: top
+	objectClass: x-termsAndConditions
+	x-termsId: privacyde
+	x-termsKind: privacy
+	x-termsLanguage: de
+	x-termsContent: placeholder
+	x-termsEffective: 197001010000Z
+
+	dn: x-termsId=privacyen,ou=terms,dc=psychnotebook,dc=org
+	objectClass: top
+	objectClass: x-termsAndConditions
+	x-termsId: privacyen
+	x-termsKind: privacy
+	x-termsLanguage: en
+	x-termsContent: placeholder
+	x-termsEffective: 197001010000Z
+	EOF
+
+Add the following account line to :file:`/etc/pam.d/sshd` to activate the
+module:
+
+.. code::
+
+	@include common-auth
+	…
+	account    required     pam_tos.so  config=/etc/pam-tos.conf
+	…
+	@include common-account
+
 SSH
 ^^^
 
@@ -637,6 +733,7 @@ clumsy
 	LDAP_PASSWORD = 'XXX'
 	LDAP_ENTRY_PEOPLE = 'uid={user},ou=people,dc=psychnotebook,dc=org'
 	LDAP_ENTRY_GROUP = 'cn={user},ou=group,dc=psychnotebook,dc=org'
+	LDAP_EXTRA_CLASSES = ['x-signatory']
 
 	# Kerberos admin authentication
 	KERBEROS_USER = 'usermgrd/tiruchirappalli'

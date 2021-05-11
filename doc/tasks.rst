@@ -130,3 +130,51 @@ message of the day (motd) in :file:`/etc/motd`. It’s a plain-text file and its
 contents will be displayed by SSH (via pam) and therefore also by bawwab (which
 reads SSH’s banner).
 
+.. _tosupdate:
+
+Update terms of service
+-----------------------
+
+The terms of service are part of the deployment documentation, see
+:file:`doc/terms`. Therefore you can change these files and apply the following
+update to LDAP:
+
+.. code:: console
+
+	effective=202105120000Z
+	termspath=`pwd`/doc/terms
+	sudo ldapmodify -Y EXTERNAL -H ldapi:/// <<EOF
+	dn: x-termsId=tosde,ou=terms,dc=psychnotebook,dc=org
+	changetype: modify
+	replace: x-termsContent
+	x-termsContent:< file://$termspath/tos-de.md
+	-
+	replace: x-termsEffective
+	x-termsEffective: $effective
+
+	dn: x-termsId=tosen,ou=terms,dc=psychnotebook,dc=org
+	changetype: modify
+	replace: x-termsContent
+	x-termsContent:< file://$termspath/tos-en.md
+	-
+	replace: x-termsEffective
+	x-termsEffective: $effective
+
+	dn: x-termsId=privacyde,ou=terms,dc=psychnotebook,dc=org
+	changetype: modify
+	replace: x-termsContent
+	x-termsContent:< file://$termspath/privacy-de.md
+	-
+	replace: x-termsEffective
+	x-termsEffective: $effective
+
+	dn: x-termsId=privacyen,ou=terms,dc=psychnotebook,dc=org
+	changetype: modify
+	replace: x-termsContent
+	x-termsContent:< file://$termspath/privacy-en.md
+	-
+	replace: x-termsEffective
+	x-termsEffective: $effective
+	-
+	EOF
+
