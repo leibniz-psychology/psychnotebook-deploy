@@ -28,11 +28,19 @@
                 (bootloader grub-bootloader)
                 (target "/dev/sda")))
 
-  ; XXX: What about the RAID?
   (file-systems (append
-                  (list (file-system
+                  (list
+                   ;; Use the first disk for the system.
+                   (file-system
                           (device "/dev/sda2")
                           (mount-point "/")
+                          (type "ext4"))
+                   ;; And the second one to store baked nars. This way we can
+                   ;; balance disk usage well and either is easily recoverable,
+                   ;; so no RAID.
+                   (file-system
+                          (device "/dev/sdb")
+                          (mount-point "/var/cache/guix")
                           (type "ext4")))
                   %base-file-systems))
 
