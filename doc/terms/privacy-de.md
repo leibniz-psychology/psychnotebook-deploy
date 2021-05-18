@@ -107,6 +107,11 @@ verlangen, dass PsychNotebook die Verwendung Ihrer personenbezogenen
 Daten einschränkt, indem Sie etwa [das Webtracking 
 ablehnen](https://mtm.leibniz-psychology.org/index.php?module=CoreAdminHome&action=optOut&language=de&fontFamily=sans-serif).
 
+**Recht auf Datenübertragbarkeit:** Sie haben das Recht Ihre personenbezogenen
+Daten, die Sie uns bereitgestellt haben, in einem strukturierten, gängigen und
+maschinenlesebaren Format zu erhalten oder die Übermittlung an einen anderen
+Verantwortlichen zu verlangen
+
 **Recht auf Widerspruch:** Das ZPID/PsychNotebook verarbeitet Ihre  
 personenbezogenen Daten, um eine im öffentlichen Interesse liegende, 
 ihm übertragene Aufgabe wahrnehmen zu können. Sie haben das Recht, 
