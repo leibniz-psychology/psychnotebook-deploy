@@ -178,3 +178,12 @@ update to LDAP:
 	-
 	EOF
 
+Afterwards all existing SSH sessions for bawwab must be killed. Their session
+stays valid until bawwab is restarted, but they cannot use conductor (and thus
+start programs), since the latter does not accept the ToS automatically. You
+can find the PIDs using:
+
+.. code:: console
+
+	ps aux | grep -e '[0-9] sshd: .*@notty'
+
