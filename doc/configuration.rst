@@ -535,7 +535,13 @@ Add its configuration:
 	bindPassword <password here>
 	EOF
 
-Add the schema from :file:`pam-tos.schema` to OpenLDAP, see :ref:`above <install-ldap-schema>`.
+Add the schema from :file:`pam-tos.schema` to OpenLDAP, see :ref:`above
+<install-ldap-schema>`. Also enable the following option in
+:file:`/etc/ssh/sshd_config`:
+
+.. code::
+
+	ChallengeResponseAuthentication yes
 
 Add some terms of service (you can :ref:`change them later <tosupdate>`):
 
