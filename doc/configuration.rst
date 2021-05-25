@@ -763,6 +763,15 @@ clumsy
 		systemctl start $service
 	done
 
+You should also populate :file:`/etc/skel`, so Ubuntu does not show its legal
+info to new users. We cannot disable ``pam_tos``, because we *want* to show a
+motd to users.
+
+.. code:: console
+
+	mkdir -p /etc/skel/.cache
+	touch /etc/skel/.cache/motd.legal-displayed
+
 conductor
 ^^^^^^^^^
 
