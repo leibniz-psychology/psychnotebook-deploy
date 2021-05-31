@@ -362,7 +362,18 @@ Modify ``/etc/krb5.conf``
 			ldap_kerberos_container_dn = cn=krb5,dc=psychnotebook,dc=org
 			ldap_servers = ldapi:///
 		}
-	
+
+.. quirks[
+
+And also add this to :file:`/etc/environment`, which is picked up by
+``pam_env`` and overrides SSH’s hardcoded ``FILE:`` token store:
+
+.. code::
+
+	KRB5CCNAME=KCM:
+
+.. ]quirks
+
 Modify ``/etc/krb5kdc/kdc.conf``
 
 .. code::
