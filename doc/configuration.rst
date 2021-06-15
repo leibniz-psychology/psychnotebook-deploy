@@ -1022,7 +1022,7 @@ Then configure it:
 
 			root /nonexistent;
 
-			server_name .user.prd.psychnotebook.org user.stg.psychnotebook.org .user.psychnotebook.org conductor.psychnotebook.org conductor;
+			server_name *.user.prd.psychnotebook.org *.user.stg.psychnotebook.org *.user.psychnotebook.org conductor.psychnotebook.org conductor;
 
 			# disable body size limit for applications, which may provide upload functionality
 			client_max_body_size 0;
@@ -1034,6 +1034,7 @@ Then configure it:
 				proxy_http_version 1.1;
 				proxy_set_header Upgrade \$http_upgrade;
 				proxy_set_header Connection \$connection_upgrade;
+				proxy_set_header Forwarded "for=_hidden;proto=https;host=\$server_name;";
 
 					# make sure websockets will not time out
 					proxy_send_timeout 1d;
