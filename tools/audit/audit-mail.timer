@@ -1,0 +1,10 @@
+[Unit]
+Description=Send daily audit email
+Requires=audit-mail.service
+
+[Timer]
+Unit=audit-mail.service
+OnCalendar=*-*-* 03:00:00
+
+[Install]
+WantedBy=timers.target

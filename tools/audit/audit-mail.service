@@ -1,0 +1,10 @@
+[Unit]
+Description=Send auditing emails
+Wants=audit-mail.timer
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/audit-mail.sh
+
+[Install]
+WantedBy=multi-user.target
