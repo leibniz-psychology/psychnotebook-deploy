@@ -97,6 +97,19 @@ available in Guix (see import_), then edit
 	./current/bin/guix package -m manifest.scm  -p ../../.guix-profile
 	popd
 
+Finding broken workspaces
+-------------------------
+
+Guix’ garbage collector can break user profiles, if they are not fully
+registered as gcroot. The script in :file:`tools/findBrokenWorkspaces.sh` can
+find broken workspaces.
+
+Profiles can be registered as gcroot using ``mashru3``:
+
+.. code:: console
+
+	guix repl -- mashru3/scripts/addRoots.scm /path/to/project
+
 Mapping email address to username
 ---------------------------------
 
