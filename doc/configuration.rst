@@ -966,6 +966,9 @@ Then configure it:
 
 			server_name www.psychnotebook.org www.stg.psychnotebook.org;
 
+			# disable body size limit for applications, which may provide upload functionality
+			client_max_body_size 0;
+
 			# do not send this header, it’ll default to unix timestamp 0 due to guix
 			add_header  Last-Modified  "";
 			add_header Cache-Control 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
