@@ -102,5 +102,9 @@
                       cron-service
                       nginx-service
                       certbot-service)
-                      %base-services))))
+                      (modify-services %base-services
+                        (guix-service-type config =>
+                          (guix-configuration
+                            (inherit config)
+                            (extra-options '("--cache-failures")))))))))
 
