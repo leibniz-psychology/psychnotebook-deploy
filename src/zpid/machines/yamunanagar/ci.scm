@@ -71,9 +71,16 @@
 			       ;; for invoke
 			       (use-modules (guix build utils))
 			       (define (loop)
-				 (invoke #$(file-append guix "/bin/guix")
+				 (system* #$(file-append guix "/bin/guix")
 					 "time-machine"  "-C" #$channels
 					 "--" "build" "--timeout=7200" "--keep-going" "-m" #$manifest)
+                   ;; Make sure substitutes are available by requesting them once from guix-publish.
+                   (system* #$(file-append guix "/bin/guix")
+					 "time-machine"  "-C" #$channels
+					 "--"
+                     "weather"
+                     "--substitute-urls=https://substitutes.guix.psychnotebook.org"
+                     "-m" #$manifest)
 				 (sleep 60)
 				 (loop))
 			       (loop))))
