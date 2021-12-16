@@ -134,7 +134,7 @@ Wie Sie die zuständige Behörde kontaktieren
 ============================================
 
 Sollten Sie eine Beschwerde vorbringen wollen oder das Gefühl haben, dass 
-wir Ihr Anliegen nicht zufriedenstellend behandelt haben, können eine 
+wir Ihr Anliegen nicht zufriedenstellend behandelt haben, können Sie eine 
 Aufsichtsbehörde für den Datenschutz kontaktieren, etwa den Landesbeauftragten 
 für den Datenschutz und die Informationsfreiheit Rheinland-Pfalz, 
 Postfach 30 40, 55020 Mainz, 06131 208-2449, 
