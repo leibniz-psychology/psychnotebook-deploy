@@ -940,9 +940,45 @@ nginx serves as a reverse proxy for all applications.
 
 .. code:: console
 
+	# Install nginx
 	apt install nginx
 
-Then configure it:
+	# Then install the ngx_brotli module by manually compiling it.
+	apt install libgd-dev libxslt1-dev libssl-dev
+	git clone https://github.com/google/ngx_brotli.git
+	pushd ngx_brotli
+	apt-get source nginx
+	pushd nginx-$version
+	./configure `nginx -V 2>&1 | sed -nre 's/configure arguments: //p'` --add-dynamic-module=`pwd`/../
+	make modules
+	mkdir -p /usr/local/lib/nginx/modules/
+	cp objs/{ngx_http_brotli_filter_module.so,ngx_http_brotli_static_module.so} /usr/local/lib/nginx/modules/
+	popd
+	popd
+
+Edit :file:`nginx.conf` to add the following line at the top:
+
+.. code:: nginx
+
+	load_module /usr/local/lib/nginx/modules/ngx_http_brotli_filter_module.so;
+
+Then include the following configuration in the ``http`` section:
+
+.. code:: nginx
+
+	gzip_vary on;
+	gzip_proxied any;
+	gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript image/svg+xml;
+
+	brotli on;
+	brotli_comp_level 4;
+	brotli_types application/atom+xml application/javascript application/json application/rss+xml
+	             application/vnd.ms-fontobject application/x-font-opentype application/x-font-truetype
+	             application/x-font-ttf application/x-javascript application/xhtml+xml application/xml
+	             font/eot font/opentype font/otf font/truetype image/svg+xml image/vnd.microsoft.icon
+	             image/x-icon image/x-win-bitmap text/css text/javascript text/plain text/xml;
+
+Then configure sites:
 
 .. code:: console
 
