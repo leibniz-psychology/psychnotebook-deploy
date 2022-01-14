@@ -893,6 +893,16 @@ We also need a dummy user with the UID 1000, because that’s the user inside th
 
 	useradd -M -u 1000 -c 'guix environment dummy user' joeuser
 
+borg
+^^^^
+
+Bawwab_ needs a working installation of ``borg``:
+
+.. code:: console
+
+    guix package -p /usr/local/profiles/borg -i borg
+    pushd /usr/local/bin && ln -sv ../profiles/borg/bin/borg && popd
+
 bawwab
 ^^^^^^
 
