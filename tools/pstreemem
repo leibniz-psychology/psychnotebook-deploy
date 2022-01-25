@@ -1,0 +1,27 @@
+#!/usr/bin/python3
+
+"""
+Display memory usage of a process tree.
+
+The tree includes the process itself and all of its children and children’s children.
+"""
+
+import sys
+from psutil import Process
+
+rsstotal = 0
+vmstotal = 0
+sharedtotal = 0
+
+p = Process (int (sys.argv[1]))
+procs = [p]
+procs.extend (p.children (recursive=True))
+for p in procs:
+    mem = p.memory_info ()
+    rsstotal += mem.rss
+    vmstotal += mem.vms
+    sharedtotal += mem.shared
+    print (f'{p.pid:10d} {p.name():20s} {mem.rss/1024/1024:10.1f} {mem.vms/1024/1024:10.1f} {mem.shared/1024/1024:10.1f}')
+
+print (f'{"":10s} {"total":20s} {rsstotal/1024/1024:10.1f} {vmstotal/1024/1024:10.1f} {sharedtotal/1024/1024:10.1f}')
+
