@@ -200,3 +200,64 @@ can find the PIDs using:
 
 	ps aux | grep -e '[0-9] sshd: .*@notty'
 
+Restoring LDAP backup
+---------------------
+
+To restore the LDAP database from a backup, run
+
+.. code-block:: bash
+
+	export BORG_REPO=ssh://u287355@backup.stg.psychnotebook.org:23/./psychnotebook-backup
+	borg extract ::ldap-config-XXX
+	borg extract ::ldap-psychnotebook-XXX
+
+	rm -rf /etc/ldap/slapd.d/
+	slapadd -n 0 -F /etc/ldap/slapd.d < config.ldif
+	chown -Rv openldap:openldap /etc/ldap/slapd.d/
+
+	# Then restore the data
+	rm -rf /var/lib/ldap/
+	mkdir /var/lib/ldap
+	slapadd -n 1 -F /etc/ldap/slapd.d < psychnotebook.ldif
+	chown -Rv openldap:openldap /var/lib/ldap
+
+Additionally Kerberos needs these files to be backed up/copied:
+``/etc/krb5kdc/{service.keyfile,stash}``.
+
+Changing passwords
+------------------
+
+LDAP
+~~~~
+
+For ``cn=admin,dc=psychnotebook,dc=org``:
+
+.. code-block:: bash
+
+	slappasswd
+	# Enter new password, copy hashed version to key olcRootPW
+	ldapvi -Q -Y EXTERNAL -h ldapi:/// -b cn=config
+
+Kerberos
+~~~~~~~~
+
+Roll over master key
+
+.. code-block:: bash
+
+	# Add a new key
+    kdb5_util add_mkey
+	# Get the KVNO
+    kdb5_util list_mkeys
+	# Activate
+    kdb5_util use_mkey $KVNO
+	kdb5_util stash
+	
+Then change the password/key of all principals to use the new master
+key. You could use :file:`tools/changeBawwabPasswords.sh` for that. And
+finally purge the original master key.
+
+.. code-block:: bash
+
+	kdb5_util purge_mkeys
+

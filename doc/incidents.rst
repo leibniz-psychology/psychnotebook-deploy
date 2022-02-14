@@ -81,7 +81,8 @@ Lessons learned:
     ``sudo`` instead.
 
     In the future critical services (LDAP, Kerberos, Web) should be moved
-    to a different, non-user-accessible machine.
+    to a different, non-user-accessible machine to limit the scope of
+    such incidents.
 
     .. Obviously. Duh.
 

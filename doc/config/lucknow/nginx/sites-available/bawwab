@@ -1,0 +1,113 @@
+# Different domains.
+server {
+	listen      80 default_server;
+	listen      [::]:80 default_server;
+	server_name psychnotebook.org psych-notebook.org www.psych-notebook.org psychnotebooks.org www.psychnotebooks.org stg.psychnotebook.org;
+
+	# Redirect to canonical, secure version.
+	location ^~ / {
+			return 301 https://www.psychnotebook.org$request_uri;
+	}
+}
+
+server {
+	listen 443 ssl;
+	listen [::]:443 ssl;
+	ssl_certificate     /etc/letsencrypt/live/psychnotebook.org/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/psychnotebook.org/privkey.pem;
+	server_name psychnotebook.org psych-notebook.org www.psych-notebook.org psychnotebooks.org www.psychnotebooks.org stg.psychnotebook.org;
+
+	# Redirect to canonical, secure version.
+	location ^~ / {
+			return 301 https://www.psychnotebook.org$request_uri;
+	}
+}
+
+server {
+	listen 443 ssl;
+	listen [::]:443 ssl;
+	ssl_certificate     /etc/letsencrypt/live/psychnotebook.org/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/psychnotebook.org/privkey.pem;
+
+	server_name www.psychnotebook.org www.stg.psychnotebook.org;
+
+	root /usr/local/profiles/bawwab/lib/python3.9/site-packages/bawwab/assets/;
+
+	# disable body size limit for applications, which may provide upload functionality
+	client_max_body_size 0;
+
+	# do not send this header, it’ll default to unix timestamp 0 due to guix
+	add_header Last-Modified  "";
+	add_header Cache-Control 'no-store, max-age=0';
+	add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";
+	#add_header Content-Security-Policy-Report-Only "default-src 'self' *.user.psychnotebook.org www.lifp.de; script-src 'self' 'unsafe-inline' 'unsafe-eval' www.lifp.de; report-uri https://www.psychnotebook.org/api/csp";
+	expires off;
+	etag off;
+
+	# server maintenance
+#	error_page 503 /servermaintenance.html;
+#    location = /servermaintenance.html {
+#        root /var/www;
+#        internal;
+#    }
+#	return 503;
+	
+	location / {
+		index /app.html;
+		try_files $uri $uri/ /app.html;
+	}
+
+	location /assets/ {
+		alias /usr/local/profiles/bawwab/lib/python3.9/site-packages/bawwab/assets/;
+	}
+
+	location /api/ {
+		proxy_set_header Host $host;
+		proxy_pass http://unix:/run/bawwab/bawwab.socket:/api/;
+		proxy_http_version 1.1;
+		proxy_set_header Upgrade $http_upgrade;
+		proxy_set_header Connection $connection_upgrade;
+		# reduce latency
+		proxy_buffering off;
+		proxy_request_buffering off;
+		proxy_set_header Forwarded "for=_hidden;proto=https;by=XXX;host=$server_name";
+	}
+
+	location /stats/ {
+		alias /var/www/stats/;
+		autoindex on;
+	}
+}
+
+server {
+	listen 443 ssl;
+	listen [::]:443 ssl;
+	ssl_certificate     /etc/letsencrypt/live/psychnotebook.org/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/psychnotebook.org/privkey.pem;
+
+	root /usr/local/profiles/bawwab-mock/lib/python3.9/site-packages/bawwab/assets/;
+
+	server_name mock.psychnotebook.org;
+
+	# do not send this header, it’ll default to unix timestamp 0 due to guix
+	add_header Last-Modified  "";
+	add_header Cache-Control 'no-store, max-age=0';
+	add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";
+	expires off;
+	etag off;
+
+	location / {
+		index /app.html;
+		try_files $uri $uri/ /app.html;
+	}
+
+	location /assets/ {
+		alias /usr/local/profiles/bawwab-mock/lib/python3.9/site-packages/bawwab/assets/;
+		add_header Service-Worker-Allowed '/';
+	}
+
+	location /api/ {
+		return 500;
+	}
+}
+

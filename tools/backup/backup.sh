@@ -4,7 +4,7 @@
 # have to create temporary files on the server.
 
 # Setting this, so the repo does not need to be given on the commandline:
-export BORG_REPO=ssh://psychnotebook@backup.prd.psychnotebook.org:2222/storage/backup
+export BORG_REPO=ssh://u287355@backup.prd.psychnotebook.org:23/./psychnotebook-backup
 
 slapcat \
 		-b 'dc=psychnotebook,dc=org' | \
@@ -23,6 +23,6 @@ borg create                         \
     ::data-'{now:%Y-%m-%d_%H:%M}'   \
    /storage/home                    \
    /storage/public                  \
-   /var/db/bawwab                   \
+   /var/lib/bawwab                   \
 
 exit $?

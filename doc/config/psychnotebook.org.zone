@@ -1,0 +1,57 @@
+; Main origin and servers.
+$ORIGIN psychnotebook.org
+
+; Current backup server
+muzaffarnagar IN A 136.199.86.65
+
+; Substitute server
+yamunanagar IN A 144.76.155.175
+yamunanagar IN AAAA 2a01:4f8:200:23ae::2
+
+; Main server.
+lucknow IN A 148.251.23.125
+lucknow IN AAAA 2a01:4f8:201:8476::2
+
+; Old main server.
+tiruchirappalli IN A 136.199.86.20
+
+; Production sites
+; Cannot CNAME the TLD, must reference same machine as bawwab.prd
+@ IN A 148.251.23.125
+@ IN AAAA 2a01:4f8:201:8476::2
+www IN CNAME bawwab.prd
+user IN CNAME conductor.prd
+*.user IN CNAME conductor.prd
+
+; Guix substitutes
+substitutes.guix IN CNAME yamunanagar
+
+; Production (prd)
+$ORIGIN prd.psychnotebook.org
+; Backup server
+backup IN CNAME u287355.your-storagebox.de.
+; SSH user login
+ssh IN CNAME lucknow.psychnotebook.org.
+; Authentication
+kdc IN CNAME lucknow.psychnotebook.org.
+ldap IN CNAME lucknow.psychnotebook.org.
+; NFS
+nfs IN CNAME lucknow.psychnotebook.org.
+; Guix master
+guix IN CNAME lucknow.psychnotebook.org.
+; Conductor web proxy
+conductor IN CNAME lucknow.psychnotebook.org.
+; Client app
+bawwab IN CNAME lucknow.psychnotebook.org.
+
+; Typo domains. Must point to bawwab.prd
+$ORIGIN psychnotebooks.org
+@ IN A 148.251.23.125
+@ IN AAAA 2a01:4f8:201:8476::2
+www IN CNAME psychnotebooks.org
+
+$ORIGIN psych-notebook.org
+@ IN A 148.251.23.125
+@ IN AAAA 2a01:4f8:201:8476::2
+www IN CNAME psych-notebook.org
+

@@ -1,0 +1,12 @@
+[Unit]
+Description=Statistics collection
+
+[Service]
+ExecStart=/usr/local/profiles/collectd/sbin/collectd -C /etc/collectd.conf -f
+StandardOutput=syslog
+StandardError=syslog
+RuntimeDirectory=collectd/
+
+[Install]
+WantedBy=multi-user.target
+

@@ -11,54 +11,26 @@ DNS
 
 External DNS configuration:
 
-.. code::
+.. literalinclude:: config/psychnotebook.org.zone
+	:language: zone
 
-	; Main origin and servers.
-	$ORIGIN psychnotebook.org
-	; Our main server.
-	tiruchirappalli IN A 136.199.86.20
-	; Current backup server
-	muzaffarnagar IN A 136.199.86.65
-	; Substitute server
-	yamunanagar IN A 144.76.155.175
-	yamunanagar IN AAAA 2a01:4f8:200:23ae::2
-	; Production sites
-	; Cannot CNAME the TLD, must reference loadbalancer.prd
-	@ IN A 136.199.85.125
-	www IN CNAME loadbalancer.prd
-	*.user IN CNAME loadbalancer.prd
-	; Guix substitutes
-	substitutes.guix IN CNAME yamunanagar
-
-	; production (prd)
-	$ORIGIN prd.psychnotebook.org
-	; Service aliasas
-	; Load balancer
-	loadbalancer IN A 136.199.85.125
-	; Backup server
-	backup IN CNAME muzaffarnagar.psychnotebook.org.
-	; Public web services.
-	@ IN CNAME bawwab
-	www IN CNAME bawwab
-	*.user IN CNAME conductor
-	; SSH user login
-	ssh IN CNAME tiruchirappalli.psychnotebook.org.
-	; Authentication
-	kdc IN CNAME tiruchirappalli.psychnotebook.org.
-	ldap IN CNAME tiruchirappalli.psychnotebook.org.
-	; NFS
-	nfs IN CNAME tiruchirappalli.psychnotebook.org.
-	; Guix master
-	guix IN CNAME tiruchirappalli.psychnotebook.org.
-	; Conductor web proxy
-	conductor IN CNAME tiruchirappalli.psychnotebook.org.
-	; Client app
-	bawwab IN CNAME tiruchirappalli.psychnotebook.org.
-
-tiruchirappalli
----------------
+lucknow
+-------
 
 The main production server running Ubuntu 20.04.
+
+General
+^^^^^^^
+
+The resolver needs to be configured to look at subdomains of
+``prd.psychnotebook.org`` for services. We also limit retention of logs.
+
+.. code::
+
+	cp doc/config/lucknow/systemd/{resolved.conf,journald.conf} /etc/systemd/
+
+Change the ``UMASK`` in :file:`/etc/login.defs` to ``027`` instead of
+``022``, so other users do not have default file access.
 
 NSCD
 ^^^^
@@ -79,27 +51,11 @@ Install
 
 	apt install nscd
 
-Enable caching by editing ``/etc/nscd.conf``
+Enable caching by adding ``/etc/nscd.conf``, then restart the daemon:
 
-.. code::
+.. code-block:: bash
 
-	# essentially disable caching by setting a very low ttl
-	enable-cache            passwd          yes
-	positive-time-to-live   passwd          1
-	negative-time-to-live   passwd          1
-
-	enable-cache            group           yes
-	positive-time-to-live   group           1
-	negative-time-to-live   group           1
-
-	enable-cache            hosts           no
-	enable-cache            services        no
-	enable-cache            netgroup        no
-
-Restart the daemon
-
-.. code:: console
-
+	cp doc/config/lucknow/nscd.conf /etc/
 	systemctl enable nscd
 	systemctl restart nscd
 
@@ -110,39 +66,30 @@ Install guix using the instructions provided in its `handbook
 <https://guix.gnu.org/manual/en/guix.html#Binary-Installation>`__. Create a
 channel configuration in ``/etc/guix/channels.scm``:
 
-.. code:: scheme
+.. code-block:: bash
 
-	(list
-        (channel
-                (name 'guix)
-                (url "https://git.savannah.gnu.org/git/guix.git")
-                (introduction
-                  (make-channel-introduction
-                    "9edb3f66fd807b096b48283debdcddccfea34bad"
-                    (openpgp-fingerprint
-                      "BBB0 2DDF 2CEA F6A8 0D1D  E643 A2A0 6DF2 A33A 54FA"))))
-        (channel
-                (name 'zpid)
-                (url "https://github.com/leibniz-psychology/guix-zpid.git")))
+	cp doc/config/lucknow/guix/channels.scm /etc/guix/
 
-Then run ``guix pull`` as root and restart the daemon with ``systemctl restart
-guix-daemon``. Clean up the dirt with ``guix pull -d``.
+Add our substitute server by appending the follownig to :file:`/etc/systemd/system/guix-daemon.service`’s ``ExecStart``
 
-From the node guix opens an SSH tunnel to the master node’s UNIX domain socket
-via a guile interpreter. This binary must be in ``PATH``, thus run as root:
+.. code:: systemd
+
+	--substitute-urls='https://substitutes.guix.psychnotebook.org https://ci.guix.gnu.org https://bordeaux.guix.gnu.org'
+
+Authorize the substitute key:
 
 .. code:: console
 
-	guix install guile
-	ln -sv /var/guix/profiles/per-user/root/guix-profile/bin/guile /usr/local/bin/
+	guix archive --authorize < src/keys/substitutes.guix.psychnotebook.org.pub
 
-Then append
+Then restart, pull and restart again:
 
-.. code::
+.. code:: console
 
-	export GUIX_LOCPATH=$GUIX_PROFILE/lib/locale
-
-to ``/etc/profile.d/guixenv.sh``
+	systemctl daemon-reload
+	systemctl restart guix-daemon
+	guix pull
+	systemctl restart guix-daemon
 
 LDAP
 ^^^^
@@ -399,7 +346,7 @@ Create list of admin users ``/etc/krb5kdc/kadm5.acl``
 
 .. code::
 
-	usermgrd/tiruchirapalli@PSYCHNOTEBOOK.ORG adi
+	usermgrd/lucknow@PSYCHNOTEBOOK.ORG adi
 
 Then create the realm and start the server
 
@@ -419,12 +366,12 @@ If ``kadmin.local`` does not work yet, because no KCM was found, comment out
 .. code:: console
 
 	kadmin.local
-	addprinc -randkey ldap/tiruchirapalli
-	addprinc -randkey host/tiruchirapalli
-	addprinc -randkey nfs/tiruchirapalli
-	ktadd nfs/tiruchirapalli
-	ktadd host/tiruchirapalli
-	ktadd -k /etc/ldap/keytab ldap/tiruchirapalli
+	addprinc -randkey ldap/lucknow
+	addprinc -randkey host/lucknow
+	addprinc -randkey nfs/lucknow
+	ktadd nfs/lucknow
+	ktadd host/lucknow
+	ktadd -k /etc/ldap/keytab ldap/lucknow
 	^D
 	chown openldap:openldap /etc/ldap/keytab
 
@@ -463,7 +410,7 @@ sssd-kcm_ is used to auto-renew tickets and make life with NFS more enjoyable.
 
 .. code:: console
 
-	apt install sssd sssd-kcm sssd-tools
+	apt install sssd sssd-kcm sssd-tools libnss-sss libpam-sss
 
 Configure it in :file:`/etc/sssd/sssd.conf`:
 
@@ -500,8 +447,8 @@ Add a new principal and export its keytab:
 .. code:: console
 
 	kadmin.local
-	addprinc -randkey sssd/tiruchirapalli
-	ktadd -k /etc/sssd/krb5.keytab sssd/tiruchirapalli
+	addprinc -randkey sssd/lucknow
+	ktadd -k /etc/sssd/krb5.keytab sssd/lucknow
 
 Due to the kerberized NFS homes it is not possible to use ``.k5login`` and::
 
@@ -517,7 +464,11 @@ permissions and start the daemon:
 	systemctl enable sssd sssd-kcm
 	systemctl start sssd sssd-kcm
 
-PAM configuration is handled by Ubuntu.
+PAM configuration is handled by Ubuntu, but we need to enable it in :file:`nssswitch.conf`:
+
+.. code-block:: bash
+
+	cp doc/config/lucknow/nssswitch.conf /etc
 
 PAM
 ^^^
@@ -647,14 +598,16 @@ Now restart sshd:
 
 	systemctl restart sshd
 
-NFS
-^^^
+.. Not applicable right now:
 
-.. code:: console
+	NFS
+	^^^
 
-	apt install nfs-kernel-server
+	.. code:: console
 
-Configured in :file:`/etc/exports`, but currently not set up.
+		apt install nfs-kernel-server
+
+	Configured in :file:`/etc/exports`, but currently not set up.
 
 Security
 ^^^^^^^^
@@ -673,19 +626,21 @@ Disallows getting a list of users:
 
 	chmod o-r /home
 
-Enable the firewall to provide at least some protection of our internal
-network:
+.. Not applicable any more:
 
-.. code:: console
+	Enable the firewall to provide at least some protection of our internal
+	network:
 
-	ufw allow 22/tcp
-	ufw allow 80/tcp
-	ufw allow out to 136.199.89.5 port 53 comment 'dns'
-	ufw allow out to 136.199.85.125 port 443 comment 'haproxy'
-	ufw allow out to 136.199.85.125 port 80 comment 'haproxy'
-	ufw deny out to 136.199.85.0/24 comment 'private'
-	ufw deny out to 136.199.89.0/24 comment 'private'
-	ufw deny out to 136.199.86.0/24 comment 'private'
+	.. code:: console
+
+		ufw allow 22/tcp
+		ufw allow 80/tcp
+		ufw allow out to 136.199.89.5 port 53 comment 'dns'
+		ufw allow out to 136.199.85.125 port 443 comment 'haproxy'
+		ufw allow out to 136.199.85.125 port 80 comment 'haproxy'
+		ufw deny out to 136.199.85.0/24 comment 'private'
+		ufw deny out to 136.199.89.0/24 comment 'private'
+		ufw deny out to 136.199.86.0/24 comment 'private'
 
 Local admins
 ^^^^^^^^^^^^
@@ -697,6 +652,7 @@ Add profile admins, which can modify the packages installed in the following sec
 	groupadd profileadmin
 	mkdir /usr/local/profiles
 	chmod 775 /usr/local/profiles
+	chmod g+s /usr/local/profiles
 	chgrp profileadmin /usr/local/profiles
 	usermod -a -G profileadmin <admin user>
 
@@ -753,9 +709,9 @@ clumsy
 	LDAP_EXTRA_CLASSES = ['x-signatory']
 
 	# Kerberos admin authentication
-	KERBEROS_USER = 'usermgrd/tiruchirappalli'
+	KERBEROS_USER = 'usermgrd/lucknow'
 	KERBEROS_KEYTAB = '/etc/clumsy/usermgrd.keytab'
-	KERBEROS_EXPIRE = 'yesterday'
+	KERBEROS_EXPIRE = 'never'
 
 	# connections to other daemons
 	NSCDFLUSHD_SOCKET = '/var/run/nscdflushd.socket'
@@ -767,7 +723,7 @@ clumsy
 
 	# then configure systemd
 	cp contrib/*.service /etc/systemd/system
-	# Adjust file paths for ExecStart
+	# Adjust file paths for ExecStart and Environment
 	systemctl daemon-reload
 	for service in mkhomedird nscdflushd usermgrd; do
 		systemctl enable $service
@@ -793,10 +749,9 @@ Same procedure:
 	git clone https://github.com/leibniz-psychology/conductor.git
 	cd conductor
 	guix package -p /usr/local/profiles/conductor -f contrib/conductor.scm
-	useradd -r -M -U -d /var/forest conductor
+	useradd -r -M -U -d /nonexistent conductor
 	# make it available globally
 	ln -sv ../profiles/conductor/bin/conductor /usr/local/bin/
-	ln -sv ../profiles/conductor/bin/conductor-pipe /usr/local/bin/
 	# make sure nginx can access it
 	usermod -a -G conductor www-data
 
@@ -822,9 +777,18 @@ Similar procedure:
 	# configuration
 	mkdir /etc/mashru3
 	cat <<EOF > /etc/mashru3/config.yaml
-	forest: conductor:/var/forest
+	conductorServer: conductor/run/conductor/client
 	EOF
+
+	# Add skeleton
 	mkdir -p /etc/mashru3/skel/.config/guix
+	chgrp profileadmin /etc/mashru3/skel
+	chmod g+s /etc/mashru3/skel
+
+	cat > /etc/mashru3/skel/.config/workspace.yaml <<EOF
+	version: 1
+	EOF
+
 	# Add default profile packages
 	cat <<EOF > /etc/mashru3/skel/.config/guix/manifest.scm
 	(specifications->manifest
@@ -882,10 +846,10 @@ Then initialize the profile:
 .. code:: console
 
 	pushd /etc/mashru3/skel
-	cp /etc/guix/channels.scm .config/guix/channels.scm
-	rm .guix-profile
-	guix pull -C .config/guix/channels.scm -p .config/guix/current
-	.config/guix/current/bin/guix environment -m .config/guix/manifest.scm -r .guix-profile --search-paths
+	guix pull -p .config/guix/current
+	.config/guix/current/bin/guix package -m .config/guix/manifest.scm -p .guix-profile
+	guix pull -d .config/guix/current
+	.config/guix/current/bin/guix package -d -p .guix-profile
 
 We also need a dummy user with the UID 1000, because that’s the user inside the Guix environment.
 
@@ -912,14 +876,12 @@ Again, same procedure:
 
 	git clone https://github.com/leibniz-psychology/bawwab.git
 	cd bawwab
-	guix package -p /usr/local/profiles/bawwab -f contrib/bawwab.scm
 	# also install certificates, which are required to contact SSL SSO
-	guix package -p /usr/local/profiles/bawwab -i nss-certs
-	# and install trash-cli, which is used by bawwab
-	apt install trash-cli
+	guix package -p /usr/local/profiles/bawwab -L contrib/guix -i bawwab nss-certs trash-cli
+	pushd /usr/local/bin && ln -sv ../profiles/bawwab/bin/trash && popd
 
 	# create a separate user
-	useradd -r -M -U -d /var/db/bawwab bawwab
+	useradd -r -M -U -d /var/lib/bawwab bawwab
 	# And make sure the www user has access to the socket
 	usermod -a -G bawwab www-data
 
@@ -929,9 +891,9 @@ Again, same procedure:
 	cp contrib/config.py /etc/bawwab/
 	# edit the config file
 	# then create database directories
-	mkdir /var/db/bawwab
-	chmod 770 /var/db/bawwab
-	chown bawwab:bawwab /var/db/bawwab
+	mkdir /var/lib/bawwab
+	chmod 770 /var/lib/bawwab
+	chown bawwab:bawwab /var/lib/bawwab
 
 	cp contrib/*.service /etc/systemd/system
 	# edit service file again
@@ -948,13 +910,13 @@ nginx
 
 nginx serves as a reverse proxy for all applications.
 
-.. code:: console
+.. code-block:: bash
 
 	# Install nginx
 	apt install nginx
 
 	# Then install the ngx_brotli module by manually compiling it.
-	apt install libgd-dev libxslt1-dev libssl-dev
+	apt install libgd-dev libxslt1-dev libssl-dev libpcre3-dev
 	git clone https://github.com/google/ngx_brotli.git
 	pushd ngx_brotli
 	apt-get source nginx
@@ -966,157 +928,19 @@ nginx serves as a reverse proxy for all applications.
 	popd
 	popd
 
-Edit :file:`nginx.conf` to add the following line at the top:
+Then copy the nginx configuration itself:
 
-.. code:: nginx
+.. code-block:: bash
 
-	load_module /usr/local/lib/nginx/modules/ngx_http_brotli_filter_module.so;
+	rsync -av doc/config/lucknow/nginx/ /etc/nginx/
 
-Then include the following configuration in the ``http`` section:
+Replace the secret for the ``Forwarded`` header with the secret you’re
+using for bawwab_’s ``FORWARDED_SECRET``.
 
-.. code:: nginx
+Then apply the changes:
 
-	gzip_vary on;
-	gzip_proxied any;
-	gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript image/svg+xml;
+.. code-block:: bash
 
-	brotli on;
-	brotli_comp_level 4;
-	brotli_types application/atom+xml application/javascript application/json application/rss+xml
-	             application/vnd.ms-fontobject application/x-font-opentype application/x-font-truetype
-	             application/x-font-ttf application/x-javascript application/xhtml+xml application/xml
-	             font/eot font/opentype font/otf font/truetype image/svg+xml image/vnd.microsoft.icon
-	             image/x-icon image/x-win-bitmap text/css text/javascript text/plain text/xml;
-
-Then configure sites:
-
-.. code:: console
-
-	cat <<EOF > /etc/nginx/sites-available/bawwab
-	# redirects to proper domain (no ssl yet)
-	server {
-		listen      80 default_server;
-		listen      [::]:80 default_server;
-		server_name prd.compute.zpid.de psychnotebook.org psych-notebook.org www.psych-notebook.org psychnotebooks.org www.psychnotebooks.org;
-
-		location ^~ / {
-				return 301 https://www.psychnotebook.org\$request_uri;
-		}
-	}
-
-	server {
-			listen 80;
-			listen [::]:80;
-
-			root /usr/local/profiles/bawwab/lib/python3.8/site-packages/bawwab/assets/;
-
-			server_name www.psychnotebook.org www.stg.psychnotebook.org;
-
-			# disable body size limit for applications, which may provide upload functionality
-			client_max_body_size 0;
-
-			# do not send this header, it’ll default to unix timestamp 0 due to guix
-			add_header  Last-Modified  "";
-			add_header Cache-Control 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
-			add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";
-			add_header Content-Security-Policy-Report-Only "default-src 'self' *.user.psychnotebook.org www.lifp.de; script-src 'self' 'unsafe-inline' 'unsafe-eval' www.lifp.de; report-uri https://www.psychnotebook.org/api/csp";
-			expires off;
-			etag off;
-
-			# server maintenance
-			#return 503;
-
-			location / {
-					index /app.html;
-					try_files \$uri \$uri/ /app.html;
-			}
-
-			location /assets/ {
-					alias /usr/local/profiles/bawwab/lib/python3.8/site-packages/bawwab/assets/;
-			}
-
-			location /assets/fontawesome/ {
-					alias /var/www/fontawesome/;
-			}
-
-			location /api/ {
-					proxy_set_header Host \$host;
-					#proxy_set_header X-Real-IP \$remote_addr;
-					proxy_pass http://unix:/run/bawwab/bawwab.socket:/api/;
-					proxy_http_version 1.1;
-					proxy_set_header Upgrade \$http_upgrade;
-					proxy_set_header Connection \$connection_upgrade;
-					# reduce latency
-					proxy_buffering off;
-					proxy_request_buffering off;
-					proxy_set_header Forwarded "for=_hidden;proto=https;by=_fooshyair5;host=\$server_name";
-			}
-
-			location /stats/ {
-					alias /var/www/stats/;
-					autoindex on;
-			}
-	}
-	EOF
-
-	cat <<EOF > /etc/nginx/sites-available/conductor
-	map \$http_upgrade \$connection_upgrade {
-	default upgrade;
-	''      close;
-	}
-
-	server {
-			listen 80;
-			listen [::]:80;
-
-			root /nonexistent;
-
-			server_name *.user.prd.psychnotebook.org *.user.stg.psychnotebook.org *.user.psychnotebook.org conductor.psychnotebook.org conductor;
-
-			# disable body size limit for applications, which may provide upload functionality
-			client_max_body_size 0;
-
-			location / {
-				proxy_set_header Host \$host;
-				proxy_set_header X-Real-IP \$remote_addr;
-				proxy_pass http://unix:/run/conductor/conductor.socket:/;
-				proxy_http_version 1.1;
-				proxy_set_header Upgrade \$http_upgrade;
-				proxy_set_header Connection \$connection_upgrade;
-				proxy_set_header Forwarded "for=_hidden;proto=https;host=\$server_name;";
-
-					# make sure websockets will not time out
-					proxy_send_timeout 1d;
-					proxy_read_timeout 1d;
-
-					# reduce latency
-					proxy_buffering off;
-					proxy_request_buffering off;
-
-					# using CSP
-					proxy_hide_header x-frame-options;
-					proxy_hide_header content-security-policy;
-					add_header Content-Security-Policy "frame-ancestors 'self' https://www.psychnotebook.org;" always;
-
-					add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";
-			}
-	}
-	EOF
-
-	cat <<EOF > /etc/nginx/sites-available/localhost
-	server {
-			listen   localhost:80;
-			server_name localhost;
-
-			location /nginx/status {
-					stub_status;
-			}
-	}
-	EOF
-
-	ln -sv ../sites-available/bawwab /etc/nginx/sites-enabled/bawwab
-	ln -sv ../sites-available/conductor /etc/nginx/sites-enabled/conductor
-	ln -sv ../sites-available/localhost /etc/nginx/sites-enabled/localhost
 	systemctl restart nginx
 
 collectd
@@ -1136,32 +960,13 @@ Add a systemd unit:
 
 .. code:: console
 
-	cat << EOF > /etc/systemd/system/collectd.service
-	[Unit]
-	Description=Statistics collection
-
-	[Service]
-	ExecStart=/usr/local/profiles/collectd/sbin/collectd -C /etc/collectd.conf -f
-	StandardOutput=syslog
-	StandardError=syslog
-	RuntimeDirectory=collectd/
-
-	[Install]
-	WantedBy=multi-user.target
-	EOF
-
+	cp doc/config/lucknow/systemd/system/collectd.service /etc/systemd/system/
 	systemctl daemon-reload
 	systemctl enable collectd
 	systemctl start collectd
 
-muzaffarnagar
--------------
-
-The backup server. Stores backups created by borg_ and runs on Guix, see
-`machine config`__.
-
-.. _borg: https://borgbackup.readthedocs.io
-__ https://github.com/leibniz-psychology/psychnotebook-deploy/blob/master/src/zpid/machines/muzaffarnagar/
+Backups
+^^^^^^^
 
 To automate the process basically we need a script, systemd service and timer.
 Systemd service runs the script everyday by 3AM.
@@ -1182,14 +987,6 @@ Generate a SSH key for root user.
 .. code:: console
 
    ssh-keygen
-
-On the backup server initialise the repository :file:`/storage/backup` with an empty
-passphrase and change the owner.
-
-.. code:: console
-
-   borg init --encryption=authenticated-blake2 /storage/backup
-   chown -R psychnotebook:psychnotebook /storage/backup
 
 yamunanagar
 -----------
