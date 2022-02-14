@@ -20,3 +20,68 @@ Lessons learned:
     - nars should be pre-baked to avoid building packages on the main server.
     - Deleting a project should stop all processes operating on it.
     - mashru3 should not overwrite any file that changed and abort with an error instead.
+
+2022-01-12
+----------
+
+What happened:
+    It was noticed that the ``su`` command could be executed by *any user*
+    and *without any password*.
+Why:
+    It looks like Ubuntu does not restrict the root user in any way if a
+    password in :file:`/etc/shadow` is absent:
+
+    .. code::
+
+        root::18515:0:99999:7:::
+
+    Thus this change was exploitable by *any PsychNotebook* user to gain
+    root access.
+
+    (Last change would be :math:`18515 \cdot 24 \cdot 60 \cdot 60` → 2020-09-10).
+
+    The file was last touched
+
+    .. code::
+
+          File: /etc/shadow
+        Modify: 2021-09-29 09:29:50.533640346 +0200
+        Change: 2021-09-29 09:29:50.533640346 +0200
+
+          File: /etc/shadow-
+        Access: 2021-09-29 09:29:50.000000000 +0200
+        Modify: 2021-09-29 09:29:50.000000000 +0200
+        Change: 2021-09-29 09:29:50.533640346 +0200
+
+    At the same time there was an OS update running, so it probably touched
+    the file, but it’s unclear whether it also modified it or not.
+
+    .. code::
+
+        2021-09-29 09:28:57 startup packages configure
+        […]
+        2021-09-29 09:30:49 status installed linux-image-5.4.0-88-generic:amd64 5.4.0-88.99
+
+    :file:`/etc/shadow-`, which is probably a backup file, also had no
+    password. Although the root account was manually disabled after noticing,
+    it is unclear when the change occured and who made it. The server
+    logs only go back until October 19th, i.e. before the file was
+    changed. Although there are no entries pointing to anyone using ``su``
+    since then, there is insufficient data to verify it has not been
+    exploited. There are no snapshots of an earlier state of the machine
+    available to further investigate the time of change. ``debsums`` shows
+    no changed checksums, ``rkhunter`` and ``unhide`` were both negative.
+Lessons learned:
+    The machine was reinstalled, all user passwords changed, all local
+    account’s passwords changed, permissions and ACL’s on user directories
+    reset.
+
+    ``su`` was configured using pam so only users in the wheel group can
+    use it, while assigning nobody to this group, since we’re using
+    ``sudo`` instead.
+
+    In the future critical services (LDAP, Kerberos, Web) should be moved
+    to a different, non-user-accessible machine.
+
+    .. Obviously. Duh.
+
