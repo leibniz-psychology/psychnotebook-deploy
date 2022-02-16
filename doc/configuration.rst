@@ -988,6 +988,32 @@ Generate a SSH key for root user.
 
    ssh-keygen
 
+Auditing
+--------
+
+.. code-block:: bash
+
+	apt install msmtp
+	cp tools/audit/audit-mail.sh /usr/local/sbin/
+	cp tools/audit/audit-mail.{service,timer} /etc/systemd/system
+
+	cat > /root/.msmtprc <<EOF
+	defaults
+
+	logfile -
+	tls on
+	port 587
+
+	account default
+	host mail3.web-server.biz
+	from donot-reply@psychnotebook.org
+	auth on
+	user XXX
+	password XXX
+	EOF
+	chmod 600 /root/.msmtprc
+	systemctl enable --now audit-mail.timer
+
 yamunanagar
 -----------
 
