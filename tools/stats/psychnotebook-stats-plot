@@ -237,3 +237,13 @@ if __name__ == '__main__':
             .data ('syn_recv', f'{d}/tcp_connections-SYN_RECV.rrd', 'value', 'MAX', stack=True) \
             .run ()
 
+    for d in glob (f'{root}/md-*'):
+        if os.path.isdir (d):
+            _, name = os.path.basename (d).split ('-', 1)
+            RRDGraph (f'{dest}/tcpconns-{name}.svg', f'md {name} (max) - {server}', start, end) \
+            .data ('active', f'{d}/md_disks-active.rrd', 'value', 'MAX', stack=False) \
+            .data ('failed', f'{d}/md_disks-failed.rrd', 'value', 'MAX', stack=False) \
+            .data ('missing', f'{d}/md_disks-missing.rrd', 'value', 'MAX', stack=False) \
+            .data ('spare', f'{d}/md_disks-spare.rrd', 'value', 'MAX', stack=False) \
+            .run ()
+
