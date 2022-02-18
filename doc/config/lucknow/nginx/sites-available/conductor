@@ -35,6 +35,10 @@ server {
 		proxy_set_header Upgrade $http_upgrade;
 		proxy_set_header Connection $connection_upgrade;
 		proxy_set_header Forwarded "for=_hidden;proto=https;host=$server_name;";
+		# If anyone ever does an absolute redirect to an insecure
+		# version of itself, rewrite to use secure one. Otherwise
+		# browsers will not show the frame.
+		proxy_redirect ~*^http://(.+)$ https://$1;
 
 		# make sure websockets will not time out
 		proxy_send_timeout 1d;
