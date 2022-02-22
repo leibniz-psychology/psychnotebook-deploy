@@ -775,71 +775,9 @@ Similar procedure:
 	ln -sv ../profiles/mashru3/bin/workspace /usr/local/bin/
 
 	# configuration
-	mkdir /etc/mashru3
-	cat <<EOF > /etc/mashru3/config.yaml
-	conductorServer: conductor/run/conductor/client
-	EOF
-
-	# Add skeleton
-	mkdir -p /etc/mashru3/skel/.config/guix
-	chgrp profileadmin /etc/mashru3/skel
-	chmod g+s /etc/mashru3/skel
-
-	cat > /etc/mashru3/skel/.config/workspace.yaml <<EOF
-	version: 1
-	EOF
-
-	# Add default profile packages
-	cat <<EOF > /etc/mashru3/skel/.config/guix/manifest.scm
-	(specifications->manifest
-	 '("glibc-utf8-locales"
-
-	   ;; basic shell utils
-	   "bash"
-	   "findutils"
-	   "coreutils"
-	   "grep"
-	   "less"
-	   "which"
-	   ;; SSL-support
-	   "nss-certs"
-
-	   "psychnotebook-app-rstudio"
-	   "psychnotebook-app-jupyterlab"
-	   "psychnotebook-app-rmarkdown"
-	   ;; for RMarkdown
-	   ;"r-knitr"
-	   ;"r-yaml"
-	   ;"r-markdown"
-	   ;"r-rmarkdown"
-	   "texlive"
-	   ;; commonly used r packages
-	   "r-psych"
-	   "r-ggplot2"
-	   "r-lattice"
-	   "r-foreign"
-	   "r-readr"
-	   "r-haven"
-	   "r-dplyr"
-	   "r-tidyr"
-	   "r-stringr"
-	   "r-forecast"
-	   "r-lme4"
-	   "r-nlme"
-	   "r-nnet"
-	   "r-glmnet"
-	   "r-caret"
-	   "r-xmisc"
-	   "r-splitstackshape"
-	   "r-tm"
-	   "r-quanteda"
-	   "r-topicmodels"
-	   "r-stm"
-	   ;;"r-parallel"
-	   "r-dt"
-	   "r-nlp"
-	   ))
-	EOF
+	rsync -av doc/config/lucknow/mashru3/ /etc/mashru3/
+	chgrp -Rv profileadmin /etc/mashru3/skel
+	chmod -Rv g+s /etc/mashru3/skel
 
 Then initialize the profile:
 
@@ -847,7 +785,7 @@ Then initialize the profile:
 
 	pushd /etc/mashru3/skel
 	guix pull -p .config/guix/current
-	.config/guix/current/bin/guix package -m .config/guix/manifest.scm -p .guix-profile
+	.config/guix/current/bin/guix package -m .config/guix/manifest.scm -p .guix-profile -i tini
 	guix pull -d .config/guix/current
 	.config/guix/current/bin/guix package -d -p .guix-profile
 
