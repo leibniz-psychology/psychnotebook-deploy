@@ -110,6 +110,24 @@ Profiles can be registered as gcroot using ``mashru3``:
 
 	guix repl -- mashru3/scripts/addRoots.scm /path/to/project
 
+Finding duplicate backup ids
+----------------------------
+
+When copying workspaces the backup ID must be changed. If that does not
+happen then :program:`borg` refuses to do anything.
+
+.. code:: bash
+
+	# First find all backup configs, extract the id, check for unique entries and then change them.
+	find . -path '**/.backup/config' -type f | \
+		xargs grep 'id =' | \
+		sed -re 's#^([^:]+)/config:id = (.+)$#\2 \1#g' | \
+		sort | uniq -w 64 -D | cut -d ' ' -f 2 | \
+		parallel -j1 'borg config {} id `python3 -c "import secrets; print(secrets.token_hex(32))"`'
+	# Since this will probably run as run, find config files now owned by root and restore their owner.
+	find . -uid 0 -type f -name 'config' | \
+		parallel -v 'chown `echo {} | cut -d / -f 2`:`echo {} | cut -d / -f 2` {}'
+
 Mapping email address to username
 ---------------------------------
 
