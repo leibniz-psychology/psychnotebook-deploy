@@ -586,11 +586,13 @@ Also allow Kerberos ticket forwarding in ``/etc/ssh/ssh_config.d/kerberos.conf``
 
 Add every SSH key of every node and master to every host’s :file:`/etc/ssh/ssh_known_hosts`.
 
-For bawwab_, password-based authentication must be enabled. Thus set:
+For bawwab_, password-based authentication must be enabled. We also need
+more than the default ten sessions per connection. Thus set:
 
 .. code::
 
 	PasswordAuthentication yes
+	MaxSessions 1000
 
 Now restart sshd:
 
