@@ -1,5 +1,5 @@
 rule sphinx
     command = sphinx-build $in $out
 
-build _build: sphinx doc
+build _build: sphinx doc | doc/tasks.rst doc/index.rst doc/security.rst doc/performance.rst doc/incidents.rst doc/configuration.rst
 

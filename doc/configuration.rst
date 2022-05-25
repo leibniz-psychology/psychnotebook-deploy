@@ -812,7 +812,7 @@ bawwab
 
 Again, same procedure:
 
-.. code:: console
+.. code-block:: bash
 
 	git clone https://github.com/leibniz-psychology/bawwab.git
 	cd bawwab
@@ -829,8 +829,12 @@ Again, same procedure:
 	chmod 750 /etc/bawwab
 	chgrp bawwab /etc/bawwab
 	cp contrib/config.py /etc/bawwab/
-	# edit the config file
-	# then create database directories
+
+Edit the config file, making sure ``SERVER_NAME`` is set to
+``'https://www.psychnotebook.org/api'``.  Then create database directories:
+
+.. code-block:: bash
+
 	mkdir /var/lib/bawwab
 	chmod 770 /var/lib/bawwab
 	chown bawwab:bawwab /var/lib/bawwab
@@ -844,6 +848,16 @@ Again, same procedure:
 If projects can be located on another partition, a .Trash directory with mode
 1777 (writable by anyone, with sticky bot) should be created, so ``trash-cli``
 works properly.
+
+bawwab-client
+^^^^^^^^^^^^^
+
+.. code-block:: bash
+
+	git clone https://github.com/leibniz-psychology/bawwab-client.git
+	cd bawwab-client
+	# Install into same profile as bawwab, because they only work as a unit.
+	guix package -p /usr/local/profiles/bawwab -L contrib/guix -i bawwab-client
 
 nginx
 ^^^^^
