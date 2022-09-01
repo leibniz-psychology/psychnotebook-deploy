@@ -23,7 +23,15 @@ General
 ^^^^^^^
 
 The resolver needs to be configured to look at subdomains of
-``prd.psychnotebook.org`` for services. We also limit retention of logs.
+``prd.psychnotebook.org`` for services and :file:`/etc/hosts` must contains a line like
+
+.. code-block::
+
+	<ip-address> lucknow lucknow.psychnotebook.org
+
+Otherwise Kerberos will have issues using the wrong hostname with hostbased principals.
+
+We also limit retention of logs.
 
 .. code::
 
@@ -279,10 +287,11 @@ Modify ``/etc/krb5.conf``
 
 	[libdefaults]
 		default_realm = PSYCHNOTEBOOK.ORG
-		rdns = false
+		rdns = true
 		dns_lookup_kdc = true
-		dns_lookup_realm = false
+		dns_lookup_realm = true
 		default_ccache_name = KCM:
+		ignore_acceptor_hostname = true
 
 		# The following krb5.conf variables are only for MIT Kerberos.
 		kdc_timesync = 1
@@ -666,62 +675,16 @@ clumsy
 	git clone https://github.com/leibniz-psychology/clumsy.git
 	cd clumsy
 	guix package -p /usr/local/profiles/clumsy -f contrib/clumsy.scm
+	pushd /usr/local/bin
+	ln -sv ../profiles/clumsy/bin/usermgr .
+	popd
 
 	# Create config files
 	mkdir /etc/clumsy
 	chmod 750 /etc/clumsy
-	cat <<EOF > /etc/clumsy/mkhomedird.config
-	SOCKET = '/var/run/mkhomedird.socket'
-	SOCKET_USER = 'root'
-	SOCKET_GROUP = 'www-data'
-	SOCKET_MODE = 0o660
 
-	DIRECTORIES = {
-				'{homedir}': {
-						'create': '/etc/skel',
-						},
-				'/storage/public/{name}': {
-						'create': True,
-						},
-				'/storage/.Trash/{uid}': {},
-				'/var/guix/profiles/per-user/{name}': {},
-				}
-	EOF
-	cat <<EOF > /etc/clumsy/nscdflushd.config
-	SOCKET = '/var/run/nscdflushd.socket'
-	SOCKET_USER = 'root'
-	SOCKET_GROUP = 'www-data'
-	SOCKET_MODE = 0o660
-	EOF
-	cat <<EOF > /etc/clumsy/usermgrd.config
-	SOCKET = '/var/run/usermgrd.socket'
-	SOCKET_USER = 'root'
-	SOCKET_GROUP = 'bawwab'
-	SOCKET_MODE = 0o660
-
-	MIN_UID = 10000
-	MAX_UID = 5000000
-
-	# LDAP admin authentication
-	LDAP_SERVER = 'ldap://ldap'
-	LDAP_USER = 'cn=psychnotebook,ou=system,dc=psychnotebook,dc=org'
-	LDAP_PASSWORD = 'XXX'
-	LDAP_ENTRY_PEOPLE = 'uid={user},ou=people,dc=psychnotebook,dc=org'
-	LDAP_ENTRY_GROUP = 'cn={user},ou=group,dc=psychnotebook,dc=org'
-	LDAP_EXTRA_CLASSES = ['x-signatory']
-
-	# Kerberos admin authentication
-	KERBEROS_USER = 'usermgrd/lucknow'
-	KERBEROS_KEYTAB = '/etc/clumsy/usermgrd.keytab'
-	KERBEROS_EXPIRE = 'never'
-
-	# connections to other daemons
-	NSCDFLUSHD_SOCKET = '/var/run/nscdflushd.socket'
-	MKHOMEDIRD_SOCKET = '/var/run/mkhomedird.socket'
-
-	# home directory
-	HOME_TEMPLATE = '/storage/home/{user}'
-	EOF
+	cp doc/config/lucknow/clumsy/* /etc/clumsy/
+	kadmin.local ktadd -k /etc/clumsy/usermgrd.keytab usermgr/lucknow
 
 	# then configure systemd
 	cp contrib/*.service /etc/systemd/system
@@ -733,7 +696,7 @@ clumsy
 	done
 
 You should also populate :file:`/etc/skel`, so Ubuntu does not show its legal
-info to new users. We cannot disable ``pam_tos``, because we *want* to show a
+info to new users. We cannot disable ``pam_motd``, because we *want* to show a
 motd to users.
 
 .. code:: console
@@ -828,7 +791,11 @@ Again, same procedure:
 	mkdir /etc/bawwab
 	chmod 750 /etc/bawwab
 	chgrp bawwab /etc/bawwab
-	cp contrib/config.py /etc/bawwab/
+	cp doc/config/lucknow/bawwab/config.py /etc/bawwab/
+
+	kadmin.local ktadd -k /etc/bawwab/bawwab.keytab bawwab/lucknow
+	chown root:bawwab /etc/bawwab/bawwab.keytab
+	chmod 640 /etc/bawwab/bawwab.keytab
 
 Edit the config file, making sure ``SERVER_NAME`` is set to
 ``'https://www.psychnotebook.org/api'``.  Then create database directories:
