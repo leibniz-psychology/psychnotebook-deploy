@@ -1,6 +1,6 @@
 #!/bin/sh
 
-users=`journalctl -o cat -u usermgrd.service -S yesterday -U today | sed -rne 's#.* ((Creat|Delet)ed .*)#\1#gp'`
+users=`journalctl -o cat -u usermgrd.service -S yesterday -U today | sed -rne 's#.* ((Creat|Delet)ed user .*)#\1#gp'`
 projects=''
 
 projects=`find /storage/public/ -perm -o=r -type f -path '**/.config/workspace.yaml' -ctime '-1' | while read -r L; do
