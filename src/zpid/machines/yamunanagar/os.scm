@@ -93,7 +93,7 @@
                                     #~(@ (zpid machines yamunanagar os) yamunanagar-os)))
                                  (system-expiration (* 1 30 24 60 60)) ; Expire after one month.
                                  (schedule "55 13 * * *")
-                                 (services-to-restart '(nginx collectd ntpd ssh-daemon mcron))))
+                                 (services-to-restart '(nginx collectd ntpd guix-publish ssh-daemon mcron))))
                       (service collectd-service-type
                        (collectd-configuration
                         (file (local-file "collectd.conf"))))
