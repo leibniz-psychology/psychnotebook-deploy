@@ -86,3 +86,34 @@ Lessons learned:
 
     .. Obviously. Duh.
 
+2022-12-07
+----------
+
+What happened:
+    Users reported they were able to log in, but unable to perform any
+    actions. SSH login was possible, but never proceeded to hand over
+    to a shell after login.
+Why:
+    After users emailed at 13:20 that PsychNotebook was unresponsive and
+    admins could not login the server was rebooted and normal operation
+    continued.
+
+    According to the log files a user with German umlauts in his name
+    and preferred username tried to register, then usermgrd started
+    spitting out errors like the following starting at 12:18:
+
+    .. code::
+    
+        bonsai.errors.LDAPError: Invalid syntax. gecos: value #0 invalid per syntax (0x0015 [21])
+
+    Due to a `bug
+    <https://github.com/leibniz-psychology/bawwab-client/commit/9652bb452d59ac7c8874078c1d2f1c639c00b7a4>`__
+    in bawwab-client the user’s browser tried to register a Unix user
+    account in an infinite loop. This led to an exhaustion of file
+    descriptors for slapd at 12:40, effectively DoS-ing the LDAP server
+    and making it unavailable for any other process. It’s not clear why
+    the entire server was affected. pam_tos could be a potential cause.
+Lessons learned:
+    The bugs in usermgrd and bawwab-client were fixed, slapd’s limit
+    for open file descriptors was raised.
+
