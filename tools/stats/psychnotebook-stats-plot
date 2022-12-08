@@ -247,3 +247,13 @@ if __name__ == '__main__':
             .data ('spare', f'{d}/md_disks-spare.rrd', 'value', 'MAX', stack=False) \
             .run ()
 
+    RRDGraph (f'{dest}/mashru3-projects.svg', f'mashru3 projects (max) - {server}', start, end) \
+            .data ('value', f'{root}/exec-psychnotebook/count-projects.rrd', 'value', 'MAX', stack=False) \
+            .run ()
+
+    RRDGraph (f'{dest}/kerberos-activeusers.svg', f'Kerberos active users (max) - {server}', start, end) \
+            .data ('1d', f'{root}/exec-psychnotebook/count-krbactive1d.rrd', 'value', 'MAX', stack=False) \
+            .data ('7d', f'{root}/exec-psychnotebook/count-krbactive7d.rrd', 'value', 'MAX', stack=False) \
+            .data ('30d', f'{root}/exec-psychnotebook/count-krbactive30d.rrd', 'value', 'MAX', stack=False) \
+            .data ('365d', f'{root}/exec-psychnotebook/count-krbactive365d.rrd', 'value', 'MAX', stack=False) \
+            .run ()

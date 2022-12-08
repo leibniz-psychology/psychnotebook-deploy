@@ -1,0 +1,10 @@
+[Unit]
+Description=PsychNotebook statistics
+Requires=psychnotebook-stats-collect.service
+
+[Timer]
+Unit=psychnotebook-stats-collect.service
+OnCalendar=*-*-* *:00:00
+
+[Install]
+WantedBy=timers.target

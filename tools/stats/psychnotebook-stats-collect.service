@@ -1,0 +1,10 @@
+[Unit]
+Description=Collect statistics
+Wants=psychnotebook-stats-collect.timer
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/psychnotebook-stats-collect
+
+[Install]
+WantedBy=multi-user.target

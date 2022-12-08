@@ -886,6 +886,10 @@ Add a systemd unit:
 	systemctl enable collectd
 	systemctl start collectd
 
+Enable statistics collection:
+
+	systemctl enable --now psychnotebook-stats-collect
+
 Backups
 ^^^^^^^
 

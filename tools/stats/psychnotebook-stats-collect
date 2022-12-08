@@ -1,0 +1,43 @@
+#!/bin/bash
+
+hostname=$(hostname)
+prefix="$hostname/exec-psychnotebook"
+now=$(date '+%s')
+sendToCollectd="socat STDIO UNIX-CONNECT:/run/collectd/client"
+
+# Collect number of projects.
+echo "PUTVAL $prefix/count-projects interval=3600 N:$(find /storage/public/ -path '**/.config/workspace.yaml' | wc -l)" | $sendToCollectd
+
+# Collect active Kerberos users.
+active1d=0
+active7d=0
+active30d=0
+active365d=0
+# Users with / are service users. We don’t care about them.
+princs=$(kadmin.local listprincs | grep -v '/')
+for PRINC in $princs; do
+        lastauth=$(kadmin.local getprinc "$PRINC" | grep '^Last successful authentication: ' | cut -d : -f 2-)
+        if [ "$lastauth" = " [never]" ]; then
+        continue
+    fi
+        lastauthts=$(date -d "$lastauth" '+%s')
+        timesinceauth=$((now-lastauthts))
+        if [ $timesinceauth -lt 86400 ]; then
+        active1d=$((active1d+1))
+    fi
+        if [ $timesinceauth -lt 604800 ]; then
+        active7d=$((active7d+1))
+    fi
+        if [ $timesinceauth -lt 2592000 ]; then
+        active30d=$((active30d+1))
+        fi
+        if [ $timesinceauth -lt 31536000 ]; then
+        active365d=$((active365d+1))
+        fi
+done
+
+echo "PUTVAL $prefix/count-krbactive1d interval=3600 $now:$active1d" | $sendToCollectd
+echo "PUTVAL $prefix/count-krbactive7d interval=3600 $now:$active7d" | $sendToCollectd
+echo "PUTVAL $prefix/count-krbactive30d interval=3600 $now:$active30d" | $sendToCollectd
+echo "PUTVAL $prefix/count-krbactive365d interval=3600 $now:$active365d" | $sendToCollectd
+
