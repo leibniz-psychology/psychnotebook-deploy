@@ -23,6 +23,10 @@ borg create                         \
     ::data-'{now:%Y-%m-%d_%H:%M}'   \
    /storage/home                    \
    /storage/public                  \
-   /var/lib/bawwab                   \
+   /var/lib/bawwab                   && \
+borg prune --list --keep-weekly=8 --keep-monthly=6 --keep-daily=14 --prefix=data- && \
+borg prune --list --keep-weekly=8 --keep-monthly=6 --keep-daily=14 --prefix=ldap-psychnotebook- && \
+borg prune --list --keep-weekly=8 --keep-monthly=6 --keep-daily=14 --prefix=ldap-config- && \
+borg compact
 
 exit $?
