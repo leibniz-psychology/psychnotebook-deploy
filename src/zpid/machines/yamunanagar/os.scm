@@ -77,6 +77,7 @@
                                  (ttl (* 30 24 60 60))))
                       (service ntp-service-type)
                       (service channel-builder-service-type)
+                      (service guix-cran-service-type)
                       (service unattended-upgrade-service-type
                                (unattended-upgrade-configuration
                                 (channels #~(cons* (channel
