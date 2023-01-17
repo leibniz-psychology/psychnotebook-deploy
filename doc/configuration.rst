@@ -631,27 +631,17 @@ Ubuntu turns on most of the critical stuff, except for::
 These are available in :file:`/etc/sysctl.d/98-dmesg.conf` and
 :file:`98-kexec.conf` respectively.
 
-Disallows getting a list of users:
+Enable the firewall to protect LDAP and Kerberos server, which cannot
+be bound to localhost.
 
 .. code:: console
 
-	chmod o-r /home
-
-.. Not applicable any more:
-
-	Enable the firewall to provide at least some protection of our internal
-	network:
-
-	.. code:: console
-
-		ufw allow 22/tcp
-		ufw allow 80/tcp
-		ufw allow out to 136.199.89.5 port 53 comment 'dns'
-		ufw allow out to 136.199.85.125 port 443 comment 'haproxy'
-		ufw allow out to 136.199.85.125 port 80 comment 'haproxy'
-		ufw deny out to 136.199.85.0/24 comment 'private'
-		ufw deny out to 136.199.89.0/24 comment 'private'
-		ufw deny out to 136.199.86.0/24 comment 'private'
+	ufw default deny incoming
+	ufw default allow outgoing
+	ufw allow ssh
+	ufw allow http
+	ufw allow https
+	ufw enable
 
 Local admins
 ^^^^^^^^^^^^
