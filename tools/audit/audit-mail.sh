@@ -7,7 +7,7 @@ projects=`find /storage/public/ -perm -o=r -type f -path '**/.config/workspace.y
 	sed -nre 's#^_id: ([a-z-]+)#https://www.psychnotebook.org/workspaces/\1#gp' "$L" && stat -c '%U' "$L" && echo
 done`
 
-if [ -z "$users"] && [ -z "$projects" ]; then
+if [ -z "$users" ] && [ -z "$projects" ]; then
 	# nothing to do
 	exit 0
 fi
