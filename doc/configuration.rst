@@ -643,6 +643,22 @@ be bound to localhost.
 	ufw allow https
 	ufw enable
 
+Log checking
+^^^^^^^^^^^^
+
+logcheck sends emails to admins about important events on the system.
+
+.. code:: bash
+
+	useradd -r -U logcheck -d /var/lib/logcheck -G systemd-journal -m
+	pushd /var/lib/logcheck
+	cp tools/logcheck/* .
+	cp tools/logcheck/*.service /etc/systemd/system
+	cp ~root/.msmtprc .
+	chmod 600 .msmtprc
+	chown -Rv logcheck:logcheck .
+	systemctl enable --now logcheck
+
 Local admins
 ^^^^^^^^^^^^
 

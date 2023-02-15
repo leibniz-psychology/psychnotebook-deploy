@@ -1,0 +1,15 @@
+[Unit]
+Description=Inspect logs and email interesting lines
+
+[Service]
+ExecStart=/var/lib/logcheck/logcheck.sh
+WorkingDirectory=~
+StandardOutput=syslog
+StandardError=syslog
+User=logcheck
+Group=logcheck
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
