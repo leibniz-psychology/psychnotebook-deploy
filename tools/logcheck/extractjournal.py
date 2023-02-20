@@ -147,7 +147,8 @@ filter = [
 	({"_SYSTEMD_UNIT": "nginx.service"},
 		[
 		r'SSL_do_handshake',
-		r'recv\(\) failed \(104: Connection reset by peer\)'
+		r'recv\(\) failed \(104: Connection reset by peer\)',
+		r'writev\(\) failed \(32: Broken pipe\) while sending request to upstream',
 		]),
 	({'_SYSTEMD_CGROUP': '/system.slice/systemd-logind.service'},
 		[
@@ -191,6 +192,10 @@ filter = [
 	({'SYSLOG_IDENTIFIER': 'kadmin.local'},
 		[
 		r'^No dictionary file specified, continuing without one.$',
+		]),
+	({'_SYSTEMD_CGROUP': '/system.slice/krb5-admin-server.service'},
+		[
+		r'^closing down fd \d+$',
 		]),
 	({"SYSLOG_IDENTIFIER": "cracklib"},
 		[
