@@ -71,6 +71,8 @@ filter = [
 		r'^Received disconnect from [^ ]+ port \d+',
 		r'^Unable to negotiate with [^ ]+ port \d+: no matching (cipher|key exchange method|host key type) found\. Their offer: [^ ]+ \[preauth\]$',
 		r'^ssh_dispatch_run_fatal: Connection from [^ ]+ port \d+: ',
+		r'^fatal: userauth_pubkey: parse request failed: incomplete message \[preauth\]',
+		r'^fatal: userauth_finish: Broken pipe \[preauth\]',
 		]),
 	({'_COMM': '(sd-pam)'},
 		[
