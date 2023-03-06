@@ -1,6 +1,6 @@
 ;; nginx may fail to start without let’s encrypt certificates
 
-(define-module (zpid machines yamunanagar nginx)
+(define-module (zpid machines patna nginx)
 	       #:use-module (gnu)
 	       #:use-module (guix gexp)
 	       #:use-module (gnu services web))
@@ -19,21 +19,23 @@
       (server-name '("substitutes.guix.psychnotebook.org"))
       (listen '("443 ssl"))
       (ssl-certificate
-       "/etc/letsencrypt/live/yamunanagar.psychnotebook.org/fullchain.pem")
+       "/etc/letsencrypt/live/patna.psychnotebook.org/fullchain.pem")
       (ssl-certificate-key
-       "/etc/letsencrypt/live/yamunanagar.psychnotebook.org/privkey.pem")
+       "/etc/letsencrypt/live/patna.psychnotebook.org/privkey.pem")
       (locations
        (list
         (nginx-location-configuration
          (uri "/")
-         (body (list "proxy_pass http://publish;"))))))
+         (body (list "proxy_pass http://publish;"
+                     "gzip off;"
+                     "proxy_pass_header Cache-Control;"))))))
      (nginx-server-configuration
-      (server-name '("yamunanagar.psychnotebook.org"))
+      (server-name '("patna.psychnotebook.org"))
       (listen '("443 ssl"))
       (ssl-certificate
-       "/etc/letsencrypt/live/yamunanagar.psychnotebook.org/fullchain.pem")
+       "/etc/letsencrypt/live/patna.psychnotebook.org/fullchain.pem")
       (ssl-certificate-key
-       "/etc/letsencrypt/live/yamunanagar.psychnotebook.org/privkey.pem")
+       "/etc/letsencrypt/live/patna.psychnotebook.org/privkey.pem")
       (locations
        (list
         (nginx-location-configuration

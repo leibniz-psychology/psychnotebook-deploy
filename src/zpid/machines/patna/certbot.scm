@@ -1,4 +1,4 @@
-(define-module (zpid machines yamunanagar certbot)
+(define-module (zpid machines patna certbot)
 	       #:use-module (gnu)
 	       #:use-module (guix gexp)
 	       #:use-module (gnu services certbot))
@@ -16,5 +16,5 @@
                           (certificates
                             (list
                               (certificate-configuration
-                                (domains '("yamunanagar.psychnotebook.org" "substitutes.guix.psychnotebook.org"))
+                                (domains '("patna.psychnotebook.org" "substitutes.guix.psychnotebook.org"))
                                 (deploy-hook %nginx-deploy-hook)))))))

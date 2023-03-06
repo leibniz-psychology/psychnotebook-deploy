@@ -1,21 +1,21 @@
-(define-module (zpid machines yamunanagar os)
+(define-module (zpid machines patna os)
  #:use-module (gnu)
+ #:use-module (gnu services linux)
  #:use-module (zpid services collectd)
  #:use-module (zpid services stats)
- #:use-module (zpid machines yamunanagar nginx)
- #:use-module (zpid machines yamunanagar ci)
- #:use-module (zpid machines yamunanagar cron)
- #:use-module (zpid machines yamunanagar certbot)
- #:use-module (zpid machines yamunanagar network)
+ #:use-module (zpid machines patna nginx)
+ #:use-module (zpid machines patna ci)
+ #:use-module (zpid machines patna cron)
+ #:use-module (zpid machines patna certbot)
  #:use-module (nongnu packages linux)
  #:use-module (nongnu system linux-initrd))
 
 (use-service-modules ssh networking virtualization mcron admin)
 (use-package-modules bootloaders certs ssh)
 
-(define-public yamunanagar-os
+(define-public patna-os
  (operating-system
-  (host-name "yamunanagar.psychnotebook.org")
+  (host-name "patna.psychnotebook.org")
   (timezone "Europe/Berlin")
   (locale "en_US.utf8")
 
@@ -26,20 +26,20 @@
 
   (bootloader (bootloader-configuration
                 (bootloader grub-bootloader)
-                (target "/dev/sda")))
+                (targets '("/dev/disk/by-id/nvme-SAMSUNG_MZQLB1T9HAJR-00007_S439NA0NA01459"))))
 
   (file-systems (append
                   (list
                    ;; Use the first disk for the system.
                    (file-system
-                          (device "/dev/sda2")
+                          (device (uuid "f8bc357d-a7f4-4cf8-9b82-1d87a00757b2"))
                           (mount-point "/")
                           (type "ext4"))
                    ;; And the second one to store baked nars. This way we can
                    ;; balance disk usage well and either is easily recoverable,
                    ;; so no RAID.
                    (file-system
-                          (device "/dev/sdb")
+                          (device (uuid "4409eee4-6580-4fe9-9b74-253ac53c668b"))
                           (mount-point "/var/cache/guix")
                           (type "ext4")))
                   %base-file-systems))
@@ -73,8 +73,8 @@
                                  (cache "/var/cache/guix/publish")
                                  ;; Allow up to 200 MiB
                                  (cache-bypass-threshold (* 200 1024 1024))
-                                 ;; 1 month
-                                 (ttl (* 30 24 60 60))))
+                                 ;; 1 year
+                                 (ttl (* 365 24 60 60))))
                       (service ntp-service-type)
                       (service channel-builder-service-type)
                       (service guix-cran-service-type)
@@ -91,15 +91,42 @@
                                              %default-channels))
                                  (operating-system-file
                                   (scheme-file "config.scm"
-                                    #~(@ (zpid machines yamunanagar os) yamunanagar-os)))
+                                    #~(@ (zpid machines patna os) patna-os)))
                                  (system-expiration (* 1 30 24 60 60)) ; Expire after one month.
                                  (schedule "55 13 * * *")
                                  (services-to-restart '(nginx collectd ntpd guix-publish ssh-daemon mcron))))
                       (service collectd-service-type
                        (collectd-configuration
                         (file (local-file "collectd.conf"))))
+                      (service rasdaemon-service-type
+                        (rasdaemon-configuration
+                          (record? #t)))
                       (service psychnotebook-stats-service-type)
-                      static-network-service
+                      (service static-networking-service-type
+                        (list
+                          (static-networking
+                            (addresses
+                              (list (network-address
+                                      (device "enp41s0")
+                                      (value "94.130.12.62/26"))
+                                    (network-address
+                                      (device "enp41s0")
+                                      (ipv6? #t)
+                                      (value "2a01:4f8:10b:106e::2/64"))))
+                            (routes
+                              (list (network-route
+                                      (destination "default")
+                                      (device "enp41s0")
+                                      (gateway "94.130.12.1"))
+                                    (network-route
+                                      (destination "default")
+                                      (device "enp41s0")
+                                      (ipv6? #t)
+                                      (gateway "fe80::1"))))
+                            (name-servers '("2a01:4ff:ff00::add:2"
+                                            "2a01:4ff:ff00::add:1"
+                                            "185.12.64.1"
+                                            "185.12.64.2")))))
                       cron-service
                       nginx-service
                       certbot-service)

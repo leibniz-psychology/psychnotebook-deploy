@@ -1,4 +1,4 @@
-(define-module (zpid machines yamunanagar cron)
+(define-module (zpid machines patna cron)
 	       #:use-module (gnu)
 	       #:use-module (guix gexp)
 	       #:use-module (gnu services mcron)
