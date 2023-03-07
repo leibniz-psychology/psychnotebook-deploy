@@ -24,9 +24,9 @@ borg create                         \
    /storage/home                    \
    /storage/public                  \
    /var/lib/bawwab                   && \
-borg prune --list --keep-weekly=8 --keep-monthly=6 --keep-daily=14 --prefix=data- && \
-borg prune --list --keep-weekly=8 --keep-monthly=6 --keep-daily=14 --prefix=ldap-psychnotebook- && \
-borg prune --list --keep-weekly=8 --keep-monthly=6 --keep-daily=14 --prefix=ldap-config- && \
+borg prune --list --keep-weekly=8 --keep-monthly=6 --keep-daily=14 --glob-archives='data-*' && \
+borg prune --list --keep-weekly=8 --keep-monthly=6 --keep-daily=14 --glob-archives='ldap-psychnotebook-*' && \
+borg prune --list --keep-weekly=8 --keep-monthly=6 --keep-daily=14 --glob-archives='ldap-config-*' && \
 borg compact
 
 exit $?
