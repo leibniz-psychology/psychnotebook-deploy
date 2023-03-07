@@ -24,6 +24,7 @@ def matchBawwab (s):
 			or (e.startswith ('logging.') and o.get ('level') == 'info') \
 			or (e == 'bawwab.app.error' and o.get ('status') in {'nonexistent', 'notfound', 'unauthenticated'}) \
 			or (e == 'logging.sanic.error' and message == 'Websocket timed out waiting for pong') \
+			or (e == 'logging.sanic.error' and message == 'Timeout waiting for TCP connection to close. Aborting') \
 			or (e == 'logging.asyncio' and 'coro=<WebsocketFrameAssembler.get()' in message)
 
 def matchUsermgrd (s):
@@ -43,10 +44,11 @@ filter = [
 	#({'_COMM': 'sshd'},
 	({"SYSLOG_IDENTIFIER": "sshd", "_TRANSPORT": "syslog"},
 		[
-		r'^Bad packet length \d+\. \[preauth\]$',
 		r'^Accepted (gssapi-keyex|publickey|keyboard-interactive/pam) for [^ ]+ from [^ ]+ port \d+ ssh2',
 		r'^Authorized to [^,]+, krb5 principal [^ ]+ \(krb5_kuserok\)$',
+		r'^Bad packet length \d+\. \[preauth\]$',
 		r'^Connection (reset|closed) by ((invalid|authenticating) user [^ ]* )?[^ ]+ port \d+ \[preauth\]$',
+		r'^Corrupted MAC on input. \[preauth\]$',
 		r'^Disconnected from ((authenticating |invalid )?user [^ ]* )?[^ ]+ port \d+( \[preauth\])?$',
 		r'^Disconnected from user [^ ]+ [^ ]+ port \d+',
 		r'^Disconnecting (invalid|authenticating) user [^ ]* [^ ]+ port \d+: Too many authentication failures \[preauth\]',
@@ -54,8 +56,12 @@ filter = [
 		r'^error: maximum authentication attempts exceeded for (invalid user )?[^ ]* from [^ ]+ port \d+ ssh2 \[preauth\]$',
 		r'^error: PAM: Authentication failure for (illegal user )?[^ ]+ from ',
 		r'^error: Protocol major versions differ: \d+ vs\. \d+$',
+		r'^error: Received disconnect from [^ ]+ port \d+:\d+: .+?: Auth fail \[preauth\]$',
 		r'^Failed keyboard-interactive/pam for invalid user [^ ]+ from [^ ]+ port \d+ ssh2',
 		r'^Failed (password|none) for (invalid user )?[^ ]+ from [^ ]+ port \d+ ssh2$',
+		r'^fatal: ssh_packet_read: disconnected',
+		r'^fatal: userauth_finish: Broken pipe \[preauth\]',
+		r'^fatal: userauth_pubkey: parse request failed: incomplete message \[preauth\]',
 		r'^Invalid user [^ ]* from [^ ]+ port \d+$',
 		r'^PAM \d+ more authentication failures?; ',
 		r'^PAM service\(sshd\) ignoring max retries\; \d+ > \d+',
@@ -68,11 +74,8 @@ filter = [
 		r'^pam_(unix|sss)\(sshd:auth\): authentication failure; ',
 		r'^Postponed keyboard-interactive for invalid user [^ ]+ from [^ ]+ port \d+ ssh2 \[preauth\]',
 		r'^Received disconnect from [^ ]+ port \d+',
-		r'^Received disconnect from [^ ]+ port \d+',
-		r'^Unable to negotiate with [^ ]+ port \d+: no matching (cipher|key exchange method|host key type) found\. Their offer: [^ ]+ \[preauth\]$',
 		r'^ssh_dispatch_run_fatal: Connection from [^ ]+ port \d+: ',
-		r'^fatal: userauth_pubkey: parse request failed: incomplete message \[preauth\]',
-		r'^fatal: userauth_finish: Broken pipe \[preauth\]',
+		r'^Unable to negotiate with [^ ]+ port \d+: no matching (cipher|key exchange method|host key type) found\. Their offer: [^ ]+ \[preauth\]$',
 		]),
 	({'_COMM': '(sd-pam)'},
 		[
@@ -91,6 +94,7 @@ filter = [
 	({'_SYSTEMD_CGROUP': '/system.slice/sssd.service'},
 		[
 		r"^Client '[^']+' not found in Kerberos database$",
+		r'^Backend is online$',
 		]),
 	({'_SYSTEMD_CGROUP': '/system.slice/sssd-pam.service'},
 		[
@@ -124,6 +128,10 @@ filter = [
 		r'^\([^)]+\) CMD \(.*\)$',
 		r'^no dictionary update necessary.$',
 		]),
+	({'SYSLOG_IDENTIFIER': 'CRON'},
+		[
+		r'^\([^)]+\) CMD \(.*\)$',
+		]),
 	({'_SYSTEMD_CGROUP': '/system.slice/backup.service'},
 		[
 		r'^Creating archive at ',
@@ -145,6 +153,7 @@ filter = [
 		r'^slap_global_control: unrecognized control: [0-9.]+$',
 		r'^get_(filter|ssa): conn \d+ unknown attribute type=sudoHost \(17\)',
 		r'^connection_input: conn=\d+ deferring operation: pending operations$',
+		r'^connection_read\(\d+\): no connection!',
 		]),
 	({"_SYSTEMD_UNIT": "nginx.service"},
 		[
@@ -162,7 +171,7 @@ filter = [
 		[
 		r' trimmed on /dev',
 		]),
-	({'_SYSTEMD_CGROUP': '/system.slice/logcheck.service'},
+	({'_SYSTEMD_UNIT': 'logcheck.service'},
 		[
 		r'exitcode=EX_OK',
 		]),
@@ -203,6 +212,12 @@ filter = [
 		[
 		r'^no dictionary update necessary\.$',
 		]),
+	# Generic stuff.
+	({"_COMM": "logger"},
+		[
+		r'^mdcheck start checking /dev/md\d+$',
+		r'^mdcheck finished checking /dev/md\d+$',
+		]),
 	({'UNIT': 'mdcheck_continue.service'},
 		[
 		r'^Condition check resulted in MD array scrubbing - continuation being skipped.$',
@@ -210,6 +225,9 @@ filter = [
 	({'_TRANSPORT': 'kernel'},
 		[
 		r'^\[UFW BLOCK\] ',
+		r'^md: data-check of RAID array md\d+$',
+		r'^md: md\d+: data-check done.$',
+		r'^md: delaying data-check of md\d+ until md\d+ has finished \(they share one or more physical units\)',
 		]),
 	]
 
