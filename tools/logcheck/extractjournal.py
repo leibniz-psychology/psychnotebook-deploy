@@ -74,8 +74,9 @@ filter = [
 		r'^pam_(unix|sss)\(sshd:auth\): authentication failure; ',
 		r'^Postponed keyboard-interactive for invalid user [^ ]+ from [^ ]+ port \d+ ssh2 \[preauth\]',
 		r'^Received disconnect from [^ ]+ port \d+',
-		r'^ssh_dispatch_run_fatal: Connection from [^ ]+ port \d+: ',
+		r'^ssh_dispatch_run_fatal: Connection from (invalid user [^ ]+ )?[^ ]+ port \d+: ',
 		r'^Unable to negotiate with [^ ]+ port \d+: no matching (cipher|key exchange method|host key type) found\. Their offer: [^ ]+ \[preauth\]$',
+		r'^error: send_error: write: Connection reset by peer',
 		]),
 	({'_COMM': '(sd-pam)'},
 		[
