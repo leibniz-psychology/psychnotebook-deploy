@@ -59,6 +59,10 @@ export GIT_TERMINAL_PROMPT=0
 # `guix import cran` needs a proper locale, otherwise it'll fail.
 export LANG=C.utf8
 
+# Init, if we run the first time.
+test ! -d output && \
+  git clone git@github.com:guix-science/guix-cran.git output
+
 pushd output
 # Update, in case any manual changes happened.
 git pull
@@ -76,7 +80,7 @@ source $GUIX_PROFILE/etc/profile
 
 mkdir -p cache/{description,contents}
 rm -f cache/description/*
-guix repl " import-scm " output guix-cran | tee log
+guix repl " import-scm " output guix-cran
 
 pushd output
 git push origin --all
