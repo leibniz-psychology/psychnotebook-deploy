@@ -22,7 +22,7 @@ user IN CNAME conductor.prd
 *.user IN CNAME conductor.prd
 
 ; Guix substitutes
-substitutes.guix IN CNAME yamunanagar
+substitutes.guix IN CNAME patna
 
 ; Production (prd)
 $ORIGIN prd.psychnotebook.org

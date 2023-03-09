@@ -945,14 +945,14 @@ Auditing
 	chmod 600 /root/.msmtprc
 	systemctl enable --now audit-mail.timer
 
-yamunanagar
------------
+patna
+-----
 
 Substitutes for guix-science and guix-zpid channels. Hosted at Hetzner and
 configured with guix, see `machine config`_. Currently an mcron
 job frequently pulls from these channels and builds any changes. Statistics are
-available at https://yamunanagar.psychnotebook.org/stats/localhost/
+available at https://patna.psychnotebook.org/stats/localhost/
 
-.. _machine config: https://github.com/leibniz-psychology/psychnotebook-deploy/blob/master/src/zpid/machines/yamunanagar/
+.. _machine config: https://github.com/leibniz-psychology/psychnotebook-deploy/blob/master/src/zpid/machines/patna/
 
 
