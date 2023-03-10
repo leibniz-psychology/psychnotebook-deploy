@@ -73,4 +73,8 @@ server {
 		alias /var/www/stats/;
 		autoindex on;
 	}
+
+	location /videos/ {
+		alias /var/www/videos/;
+	}
 }
