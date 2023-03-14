@@ -12,8 +12,8 @@
   #:use-module (srfi srfi-26))
 
 (define-public guix-cran-scripts
-  (let ((commit "6c5838d970353edb0785462dafb5ef76271e4274")
-        (revision "0"))
+  (let ((commit "44e6a4f66f320f52b80b21c37f23cd8c69b5a301")
+        (revision "1"))
   (package
     (name "guix-cran-scripts")
     (version (git-version "0" revision commit))
@@ -25,7 +25,7 @@
              (commit commit)))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0wzx5f6agx9rji0s173323apw3cjjgyq9i0xfaj6zjgfq8c0lp9y"))))
+        (base32 "0kyb7cgkn4yy5glq3y08mky23qb4cmici5y7nbb4smb5lwjjlcc1"))))
     (build-system trivial-build-system)
     (arguments
      (list
