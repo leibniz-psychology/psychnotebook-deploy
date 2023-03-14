@@ -279,3 +279,19 @@ finally purge the original master key.
 
 	kdb5_util purge_mkeys
 
+Updating RStudio
+----------------
+
+To rebase the existing patches onto a new RStudio release use:
+
+.. code-block:: bash
+
+	export PREV=v2021.09.2+382
+	export NEXT=v2021.09.3+396
+
+	git checkout guix-zpid-$PREV
+	git checkout -b guix-zpid-$NEXT
+
+	# Assuming guix-science has been treated with the same medicine.
+	git rebase --onto guix-science-$NEXT guix-science-$PREV guix-zpid-$NEXT
+
