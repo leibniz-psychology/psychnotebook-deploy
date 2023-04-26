@@ -2,10 +2,6 @@
 $ORIGIN psychnotebook.org
 
 ; Substitute server
-yamunanagar IN A 144.76.155.175
-yamunanagar IN AAAA 2a01:4f8:200:23ae::2
-
-; New substitute server
 patna IN A 94.130.12.62
 patna IN AAAA 2a01:4f8:10b:106e::2
 
