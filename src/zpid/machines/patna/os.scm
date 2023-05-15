@@ -49,6 +49,18 @@
                          (comment "")
                          (group "users")
                          (password (crypt "changeme" "$6$abc"))
+                         (supplementary-groups '("wheel" "netdev" "audio" "video")))
+                       (user-account
+                         (name "jb")
+                         (comment "")
+                         (group "users")
+                         (password (crypt "changeme" "$6$abc"))
+                         (supplementary-groups '("wheel" "netdev" "audio" "video")))
+                       (user-account
+                         (name "mko")
+                         (comment "")
+                         (group "users")
+                         (password (crypt "changeme" "$6$abc"))
                          (supplementary-groups '("wheel" "netdev" "audio" "video"))))
                  %base-user-accounts))
 
