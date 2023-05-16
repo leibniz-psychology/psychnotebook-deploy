@@ -76,7 +76,9 @@
                                  (password-authentication? #f)
                                  (port-number 2222)
                                  (authorized-keys
-                                   `(("ldb" ,(local-file "../../../keys/ldb.pub"))))))
+                                   `(("ldb" ,(local-file "../../../keys/ldb.pub"))
+                                     ("mko" ,(local-file "../../../keys/mko.pub"))
+                                     ("jb" ,(local-file "../../../keys/jb.pub"))))))
                       (service guix-publish-service-type
                                (guix-publish-configuration
                                  (host "127.0.0.1")
