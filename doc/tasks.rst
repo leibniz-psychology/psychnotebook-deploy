@@ -26,17 +26,10 @@ best way to figure out which ones are old is to run:
 
 .. code:: console
 
-	ps aux | grep -i conductor-pipe-real
+	ps -e -o pid,user:20,start,cmd --sort=-etime | grep -i workspace-real
 
-and then kill the oldest ones. This should also terminate the corresponding
-application, which can be verified using tools like ``pstree``.
-
-Other methods for culling were investagated. ``ktwkd`` could in theory collect
-data for every process from ``/proc/<pid>/{io,stat}``, determine if the process
-tree of a user has been idle for a given time (i.e. no CPU usage or I/O) and
-send it a SIGTERM.  Unfortunately the Linux kernel lacks per-process accounting
-of network activity, rendering this method unreliable, because a process might
-be network-heavy, but not use a lot of CPU time or generate disk I/O.
+Then ``kill`` the oldest ones. Processes running more than a few days
+are usually unused.
 
 .. _import:
 
