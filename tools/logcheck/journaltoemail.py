@@ -17,11 +17,9 @@ msg = EmailMessage()
 msg.add_attachment(content, disposition='inline')
 msg.add_attachment(raw, disposition='inline')
 
-# me == the sender's email address
-# you == the recipient's email address
-msg['Subject'] = f'Log messages'
+msg['Subject'] = f'[PsychNotebook] Log messages'
 msg['From'] = 'PsychNotebook Logs <donot-reply@psychnotebook.org>'
-msg['To'] = 'ldb@leibniz-psychology.org'
+msg['To'] = 'psychnotebook@leibniz-psychology.org'
 
 sys.stdout.buffer.write (msg.as_bytes ())
 
