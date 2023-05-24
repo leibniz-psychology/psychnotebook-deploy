@@ -118,10 +118,15 @@ filter = [
 		'^Shutting down$',
 		'^Starting up$',
 		]),
+	({'_SYSTEMD_CGROUP': '/system.slice/sssd.service'},
+		[
+		'^Preauthentication failed$',
+		]),
 	({'_SYSTEMD_CGROUP': '/system.slice/krb5-kdc.service'},
 		[
 		r'^TGS_REQ \(\d+ etypes \{[^}]+\}\) .+?: ISSUE: authtime \d+, etypes \{[^}]+\}, [^ ]+ for [^ ]+$',
 		r'^AS_REQ \(\d+ etypes \{[^}]+\}\) .+?: (NEEDED_PREAUTH|CLIENT_NOT_FOUND|ISSUE): ',
+		r'^preauth \(encrypted_timestamp\) verify failure: Preauthentication failed$',
 		]),
 	({'_SYSTEMD_CGROUP': '/system.slice/cron.service'},
 		[
@@ -153,7 +158,7 @@ filter = [
 		[
 		r'^slap_global_control: unrecognized control: [0-9.]+$',
 		r'^get_(filter|ssa): conn \d+ unknown attribute type=sudoHost \(17\)',
-		r'^connection_input: conn=\d+ deferring operation: pending operations$',
+		r'^connection_input: conn=\d+ deferring operation: (pending operations|too many executing)$',
 		r'^connection_read\(\d+\): no connection!',
 		]),
 	({"_SYSTEMD_UNIT": "nginx.service"},
