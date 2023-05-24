@@ -892,9 +892,12 @@ Add a systemd unit:
 	systemctl enable collectd
 	systemctl start collectd
 
-Enable statistics collection:
+Enable statistics collection and rendering:
 
-	systemctl enable --now psychnotebook-stats-collect
+	guix package -p /usr/local/profiles/stats -i font-mononoki fontconfig rrdtool python coreutils findutils
+	cp tools/stats/psychnotebook-stats-{collect,plot,update} /usr/local/sbin
+	cp tools/stats/{*.service,*.timer} /etc/systemd/system
+	systemctl enable --now psychnotebook-stats-collect.timer psychnotebook-stats-update.timer
 
 Backups
 ^^^^^^^

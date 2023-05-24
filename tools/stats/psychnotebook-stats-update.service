@@ -1,0 +1,11 @@
+[Unit]
+Description=Render server statistics HTML
+Wants=psychnotebook-stats-update.timer
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/psychnotebook-stats-update
+Environment=PATH=/usr/local/sbin:/usr/local/profiles/stats/bin
+
+[Install]
+WantedBy=multi-user.target
